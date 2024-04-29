@@ -1,0 +1,12 @@
+.slider{
+    margin-top: 10px;
+}
+.slider__image{
+    border-radius: 3px;
+}
+.slider__static{
+    padding-left: 3px;
+}
+.slider__static2{
+    margin-top: 3px;
+}
