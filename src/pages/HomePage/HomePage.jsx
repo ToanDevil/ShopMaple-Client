@@ -47,7 +47,6 @@ const HomePage = () => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'auto' });
   };
-
   return (
     <div className='container'>
       <Flex justify='flex-start' align='center' className="type__product">
