@@ -36,3 +36,7 @@ export const MoreText = styled.span`
     text-align: center;
     padding-top: 44px 
 `
+export const WarningText = styled.div`
+    color: red;
+    margin-bottom: 14px
+`

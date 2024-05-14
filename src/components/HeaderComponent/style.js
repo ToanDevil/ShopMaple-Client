@@ -27,3 +27,9 @@ export const Option = styled(Space)`
   padding-right: 8px;
   padding-top: 2px;
 `
+
+export const TextSign = styled.span`
+  cursor: pointer;
+  color: rgb(248,71,47);
+  font-weight: 500
+`

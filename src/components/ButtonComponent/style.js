@@ -4,7 +4,9 @@ import styled from "styled-components";
 export const HoverButton = styled(Button)`
     &&& {
         &:hover {
-        border-color: #f84b2f;
+            background-color: #f84b2f !important;
+            border-color: #f84b2f;
+            color: #fff !important;
         }
     }
 `

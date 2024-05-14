@@ -11,6 +11,8 @@ function App() {
   }, [])
 
   const fetchApi = async () => {
+    console.log(process.env)
+    console.log("process.env.REACT_APP_API_KEY", process.env.REACT_APP_API_URL)
     const res = await axios.get(`http://localhost:3001/api/product/list-product`)
     console.log("res", res)
   }

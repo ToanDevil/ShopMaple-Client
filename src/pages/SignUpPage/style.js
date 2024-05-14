@@ -13,7 +13,7 @@ export const WrapperBody = styled.div`
     display: flex;
     justify-content: center;
     align-items: center; 
-    height: 602.8px
+    // height: 602.8px
 `;
 export const WrapperContent = styled.div`
     display: flex;

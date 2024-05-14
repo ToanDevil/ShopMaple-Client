@@ -3,8 +3,10 @@ import {Col, Row, Space, Flex, Dropdown, Avatar, Input, Image} from 'antd'
 import { UserOutlined, PauseOutlined,FacebookFilled,InstagramFilled,
   QuestionCircleOutlined,BellOutlined
 } from '@ant-design/icons';
-import { CartIcon, Col4__Logo, Option, WrapperHeader } from './style';
+import { CartIcon, Col4__Logo, Option, WrapperHeader, TextSign } from './style';
 import Logo from '../../asset/images/Logo.png'
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const HeaderComponent = () => {
   const items = [
@@ -42,6 +44,15 @@ const HeaderComponent = () => {
   }
   const { Search } = Input;
   const onSearch = (value, _e, info) => console.log(info?.source, value);
+
+  const navigate = useNavigate();
+  const handleNavigateSignIn = () => {
+    navigate('/sign-in')
+  }
+  const handleNavigateSignUp = () =>{
+    navigate('/sign-up')
+  }
+  const user = useSelector((state) => state.user)
   return (
     <WrapperHeader>
         <Row style = {boxStyle}>
@@ -70,23 +81,25 @@ const HeaderComponent = () => {
                   <QuestionCircleOutlined />
                   Hỗ Trợ
                 </Option>
-                {/* <Dropdown
-                  menu={{
-                    items,
-                  }}
-                  placement="bottomRight"
-                  arrow
-                >
-                  <Space>
-                    <Avatar size="small" icon={<UserOutlined />} />
-                    Nguyễn Công Toàn
-                  </Space>
-                </Dropdown> */}
-                <Option>
-                  <a href='/sign-in'>Đăng nhập</a>
-                  <PauseOutlined/>
-                  <a href='/sign-up'>Đăng ký</a>
-                </Option>  
+                {user?.username ? 
+                  (<Dropdown
+                    menu={{
+                      items,
+                    }}
+                    placement="bottomRight"
+                    arrow
+                  >
+                    <Space style={{cursor: 'pointer'}}>
+                      <Avatar size="small" icon={<UserOutlined />} />
+                      {user.username}
+                    </Space>
+                  </Dropdown>):
+                  (<Option>
+                    <div onClick={handleNavigateSignIn}><TextSign>Đăng nhập</TextSign></div>
+                    <PauseOutlined/>
+                    <div onClick={handleNavigateSignUp}><TextSign>Đăng ký</TextSign></div>
+                  </Option>)
+                } 
               </Flex>
             </Col>
         </Row>
