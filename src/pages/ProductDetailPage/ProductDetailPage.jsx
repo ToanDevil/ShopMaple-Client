@@ -54,10 +54,10 @@ const ProductDetailPage = () => {
                     title: 'Trang chủ',
                 },
                 {
-                    title: <a href="">Đồ chơi</a>,
+                    title: <span>Đồ chơi</span>,
                 },
                 {
-                    title: <a href="">Gấu bông</a>,
+                    title: <span>Gấu bông</span>,
                 },
                 {
                     title: 'chi tiết',
@@ -115,7 +115,7 @@ const ProductDetailPage = () => {
                             <Col span={4}><MoreInfo>Vận chuyển</MoreInfo></Col>
                             <Col span={20}>
                                 <Flex justify='flex-start' align='center'>
-                                    <img src={FreeShipIcon} style={{width: '20px', marginRight: '5px'}}></img>
+                                    <img src={FreeShipIcon} alt="Free Shipping Icon" style={{width: '20px', marginRight: '5px'}}></img>
                                     <span> Miễn phí vận chuyển</span>
                                 </Flex>
                             </Col>

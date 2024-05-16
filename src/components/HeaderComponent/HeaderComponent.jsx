@@ -3,7 +3,7 @@ import {Col, Row, Space, Flex, Dropdown, Avatar, Input, Image} from 'antd'
 import { UserOutlined, PauseOutlined,FacebookFilled,InstagramFilled,
   QuestionCircleOutlined,BellOutlined
 } from '@ant-design/icons';
-import { CartIcon, Col4__Logo, Option, WrapperHeader, TextSign } from './style';
+import { CartIcon, ColLogo, Option, WrapperHeader, TextSign } from './style';
 import Logo from '../../asset/images/Logo.png'
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -104,9 +104,9 @@ const HeaderComponent = () => {
             </Col>
         </Row>
         <Row style = {boxStyle}>
-          <Col4__Logo span={4}>
+          <ColLogo span={4}>
             <Image src={Logo} alt="Logo" preview={false}></Image>
-          </Col4__Logo>
+          </ColLogo>
           <Col span={16}>
             <Search placeholder="Tìm kiếm" onSearch={onSearch} enterButton />
           </Col>
