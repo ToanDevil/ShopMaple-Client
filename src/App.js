@@ -2,13 +2,14 @@ import React, { Fragment, useEffect } from 'react'
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom'
 import {routes} from './routes/index'
 import DefaultComponent from './components/DefaultComponent/DefaultComponent'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import * as UserService from './services/UserService'
 import { jwtDecode } from 'jwt-decode'
 import { updateUser } from './redux/slices/userSlice'
 
 function App() {
   const dispatch = useDispatch()
+  const user = useSelector((state) => state.user)
   /*eslint-disable*/
   useEffect(() => {
     const {decoded, storageData} = handleDecode()
@@ -31,10 +32,9 @@ function App() {
     // Do something before request is sent
     const currentTime = new Date()
     const {decoded} = handleDecode()
-    console.log(decoded)
+    // console.log(decoded)
     if(decoded?.exp < currentTime.getTime()/1000){
       const access_token = await UserService.refreshToken()
-      console.log("access_token_new", access_token)
       config.headers['access_token'] = `Bearer ${access_token}`
     }
     return config;
@@ -55,13 +55,16 @@ function App() {
         <Routes>
           {routes.map((route =>{
             const Page = route.page
+            const isCheckAuth = !route.isPrivate || user.isAdmin
             const Layout = route.isShowHeader ? DefaultComponent : Fragment
             return (
-              <Route key = {route.path} path={route.path} element={
-                <Layout>
-                  <Page />
-                </Layout>
-              }></Route>
+              isCheckAuth ? (
+                <Route key = {route.path} path={route.path} element={
+                  <Layout>
+                    <Page />
+                  </Layout>
+                }></Route>
+              ) : null
             )
           }))}
         </Routes>

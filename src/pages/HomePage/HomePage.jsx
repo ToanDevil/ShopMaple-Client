@@ -10,32 +10,42 @@ import slide4 from '../../asset/images/slide4.jpg';
 import slide5 from '../../asset/images/slide5.jpg';
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent';
 import { WrapperCardComponent } from '../TypeProductPage/style';
+import { useQuery } from '@tanstack/react-query';
+import * as ProductService from '../../services/ProductService'
 
 const HomePage = () => {
   const arr = ['Quần áo', 'Giày dép', 'Điện thoại', 'Đồ gia dụng'];
   const [showMore, setShowMore] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 60; // Số sản phẩm trên mỗi trang
+  const fetchAllProduct = async () => {
+    const res = await ProductService.getAllProduct()
+    return res
+  }
+  const {data: products} = useQuery({queryKey:['products'], queryFn:fetchAllProduct})
+  console.log('Products', products)
+  const itemsPerPage = 10; // Số sản phẩm trên mỗi trang
 
   // Mảng chứa các phần tử JSX của WrapperCardComponent
   let wrapperCardComponents = [];
 
   // Duyệt qua mỗi phần tử và thêm vào mảng JSX
-  const lengthProduct = 121;
-  const initialProductCount = showMore ? lengthProduct : 30;
-  if(initialProductCount===30){
+  const lengthProduct = products?.data?.length || 0;
+
+  if(lengthProduct>30){
     for(let i = 0; i<30; i++){
+      const product = products?.data[i]
       wrapperCardComponents.push(
-        <WrapperCardComponent key={i} width="calc(16.66667% - 10px)" />
+        <WrapperCardComponent key={product?._id} width="calc(16.66667% - 10px)"  product = {product} />
       )
     }
   }
   else{
     wrapperCardComponents=[];
     for (let i = (currentPage - 1) * itemsPerPage; i < Math.min(currentPage * itemsPerPage, lengthProduct); i++) {
+      const product = products?.data[i]
       wrapperCardComponents.push(
-        <WrapperCardComponent key={i} width="calc(16.66667% - 10px)" />
-      );
+        <WrapperCardComponent key={product?._id} width="calc(16.66667% - 10px)"  product = {product} />
+      )
     }
   }
 

@@ -30,3 +30,13 @@ export const TextSign = styled.span`
   color: rgb(248,71,47);
   font-weight: 500
 `
+export const LinkCustom = styled.span`
+  cursor: pointer;
+`
+
+export const Link = styled.span`
+  cursor: pointer;
+  &:hover{
+    color: rgb(248,71,47)
+  }
+`

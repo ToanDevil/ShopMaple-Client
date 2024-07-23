@@ -4,25 +4,24 @@ import { Flex } from 'antd';
 import { Typography } from 'antd';
 
 const { Paragraph } = Typography;
-const CardComponent = ({width}) => {
+const CardComponent = ({width, product}) => {
   const [ellipsis] = useState(true);
   const [rows] = useState(2);
   return (
     <CustomCard
         hoverable
         style={{width: width}}
-        cover={<img alt="example" src="	https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-loxthz3zlye3ab_tn.webp" style={{ objectFit: 'cover', height: '200px' }}/>}
+        cover={<img alt="example" src={product.image} style={{ objectFit: 'cover', height: '200px' }}/>}
     >
       <Tag/>
       <Discount>
         <DiscountText>-43%</DiscountText>
       </Discount>
       <div>
-        <Paragraph ellipsis={{ ellipsis, rows }}>Ant Design, a design language for background applications, is refined by Ant UED Team. Ant
-          Design, a design language for background applications, is refined by Ant UED Team.</Paragraph>
+        <Paragraph ellipsis={{ ellipsis, rows }} style={{height: '3em', lineHeight:'1,5em'}}>{product.name}</Paragraph>
         <Flex justify='flex-start' align='center'>
           <Unit>₫</Unit>
-          <Price>100.000</Price>
+          <Price>{product.price}</Price>
         </Flex>
         <Sold>Đã bán 34,2k</Sold>
       </div>
