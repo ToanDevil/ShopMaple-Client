@@ -2,6 +2,7 @@ import { Menu } from "antd";
 import styled from "styled-components";
 
 export const ContentMenu = styled(Menu)`
+    padding-top: 24px;
     height: calc(100vh - 60px);
     .ant-menu-submenu .ant-menu-submenu-title .ant-menu-submenu-arrow {
         display: none;
@@ -30,6 +31,7 @@ export const ContentMenu = styled(Menu)`
     .ant-menu-submenu-title-selected {
         background-color: transparent !important; 
         color: rgb(34, 193, 195) !important; 
+        border-right: solid 4px rgb(34, 193, 195) !important;
     }
 
     /* Đảm bảo thay đổi màu của tiêu đề SubMenu khi selected */
@@ -47,7 +49,10 @@ export const ContentMenu = styled(Menu)`
         line-height: 28px;
     }
     &&& .ant-menu-item{
-        height: 28px;
+        height: 38px;
         line-height: 28px;
+        margin: 0;
+        width: 100%;
+        border-radius: unset;
     }
 `

@@ -1,23 +1,140 @@
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { WrapperContainer, WrapperFlex, WrapperHeader, WrapperSpan } from '../AdminPageListUser/style';
-import { Button, Flex, Table, Tooltip, Row, Col, Image, Avatar, Switch } from 'antd';
-import { EyeOutlined, DeleteOutlined, UserOutlined } from '@ant-design/icons';
-import * as m from '../../components/MessageComponent/MessageComponent';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Button, Flex, Table, Tooltip, Row, Col, Image, Avatar, Switch, Input, Space } from 'antd';
+import { EyeOutlined, DeleteOutlined, UserOutlined,SearchOutlined } from '@ant-design/icons';
+import { useQuery } from '@tanstack/react-query';
 import * as UserService from '../../services/UserService';
 import { WrapperModal } from '../AdminPageProduct/style';
+import Highlighter from 'react-highlight-words';
+import { format } from 'date-fns';
 
 
 const AdminPageListUser = () => {
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   const [selectedUser, setSelectedUser] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [searchedColumn, setSearchedColumn] = useState('');
+  const searchInput = useRef(null);
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();  
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText('');
+  };
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+      <div
+        style={{
+          padding: 8,
+        }}
+        onKeyDown={(e) => e.stopPropagation()}
+      >
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{
+            marginBottom: 8,
+            display: 'block',
+          }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{
+              width: 90,
+            }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{
+              width: 90,
+            }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({
+                closeDropdown: false,
+              });
+              setSearchText(selectedKeys[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Filter
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              close();
+            }}
+          >
+            close
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined
+        style={{
+          color: filtered ? '#1677ff' : undefined,
+        }}
+      />
+    ),
+    onFilter: (value, record) => {
+      if (!record.name) return false;
+      const recordValue = dataIndex === 'phone' ? '0' + record[dataIndex] : record[dataIndex];
+      return recordValue.toString().toLowerCase().includes(value.toLowerCase());
+    },
+    onFilterDropdownOpenChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInput.current?.select(), 100);
+      }
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{
+            backgroundColor: '#ffc069',
+            padding: 0,
+          }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ''}
+        />
+      ) : (
+        text
+      ),
+  });
 
   const columns = [
     {
       title: 'Username',
       dataIndex: 'username',
       key: 'username',
+      sorter: (a, b) => {
+        if (!a.name && !b.name) return 0;
+        if (!a.name) return -1;
+        if (!b.name) return 1;
+        return a.name.localeCompare(b.name);
+      },
+      ...getColumnSearchProps('username'),
       render: (text) => (
         <Tooltip title={text}>
           <span
@@ -29,7 +146,7 @@ const AdminPageListUser = () => {
               display: 'inline-block',
             }}
           >
-            {text}
+            {text ? text : ''}
           </span>
         </Tooltip>
       ),
@@ -38,6 +155,10 @@ const AdminPageListUser = () => {
       title: 'Phone',
       dataIndex: 'phone',
       key: 'phone',
+      ...getColumnSearchProps('phone'),
+      render: (text, record) => (
+        <span>{'0' + record.phone}</span>
+      ),
     },
     {
       title: 'Email',
@@ -53,6 +174,22 @@ const AdminPageListUser = () => {
       title: 'Gender',
       dataIndex: 'sex',
       key: 'sex',
+      filters: [
+        {
+          text: 'Không rõ',
+          value: 0,
+        },
+        {
+          text: 'Nam',
+          value: 1,
+        },
+        {
+          text: 'Nữ',
+          value: 2,
+        },
+      ],
+      // filteredValue: filteredInfo.sex || null,
+      onFilter: (value, record) => record.sex === value,
       render: (text, record) => (
         <>
           {record.sex === 2 && 'Nữ'}
@@ -65,6 +202,11 @@ const AdminPageListUser = () => {
       title: 'Created At',
       dataIndex: 'createdAt',
       key: 'createdAt',
+      render: (text, record) => (
+        <>
+          {format(new Date(record.createdAt), 'dd/MM/yyyy HH:mm:ss')}
+        </>
+      ),
     },
     {
       title: 'Status',
@@ -196,7 +338,7 @@ const AdminPageListUser = () => {
                 {selectedUser.sex === 1 && (<WrapperSpan><strong>Gender:</strong> Nam</WrapperSpan>)}
                 {selectedUser.sex === 2 && (<WrapperSpan><strong>Gender:</strong> Nữ</WrapperSpan>)}
                 <WrapperSpan><strong>Date of birth:</strong> {selectedUser.dob}</WrapperSpan>
-                <WrapperSpan><strong>Created At:</strong> {selectedUser.createdAt}</WrapperSpan>
+                <WrapperSpan><strong>Created At:</strong> {format(new Date(selectedUser.createdAt), 'dd/MM/yyyy HH:mm:ss')}</WrapperSpan>
                 <WrapperSpan><strong>Status:</strong> {selectedUser.status}</WrapperSpan>
               </WrapperFlex>
             </Col>

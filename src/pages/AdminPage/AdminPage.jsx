@@ -40,6 +40,8 @@ const AdminPage = () => {
         return <AdminPageProduct />;
       case 'sub3':
         return <AdminPageProduct />;
+      default: 
+        return <AdminPageListUser />;
     }
   }
   return (
@@ -49,9 +51,6 @@ const AdminPage = () => {
         <Col span={4}>
           <ContentMenu
             onClick={onClick}
-            style={{
-              backgroundColor: '#9CDBA6',
-            }}
             defaultSelectedKeys={[selectedKey]}
             mode="inline"
             items={items}

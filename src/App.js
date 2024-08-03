@@ -4,6 +4,7 @@ import {routes} from './routes/index'
 import DefaultComponent from './components/DefaultComponent/DefaultComponent'
 import { useDispatch, useSelector } from 'react-redux'
 import * as UserService from './services/UserService'
+import * as ProductService from './services/ProductService'
 import { jwtDecode } from 'jwt-decode'
 import { updateUser } from './redux/slices/userSlice'
 
@@ -29,6 +30,20 @@ function App() {
   }
 
   UserService.axiosJWT.interceptors.request.use(async (config) => { // làm mới access-token khi hết hạn
+    // Do something before request is sent
+    const currentTime = new Date()
+    const {decoded} = handleDecode()
+    // console.log(decoded)
+    if(decoded?.exp < currentTime.getTime()/1000){
+      const access_token = await UserService.refreshToken()
+      config.headers['access_token'] = `Bearer ${access_token}`
+    }
+    return config;
+  }, function (error) {
+    // Do something with request error
+    return Promise.reject(error);
+  });
+  ProductService.axiosJWT.interceptors.request.use(async (config) => { // làm mới access-token khi hết hạn
     // Do something before request is sent
     const currentTime = new Date()
     const {decoded} = handleDecode()

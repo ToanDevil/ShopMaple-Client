@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { WrapperContainer, WrapperHeader } from '../AdminPageListUser/style';
-import { Button, Col, Flex, Row, Input, Select, Form, Tooltip, Image } from 'antd';
-import { PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Button, Col, Flex, Row, Input, Select, Form, Tooltip, Image, Space } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
 import { WrapperModal, WrapperForm, WrapperReactQuill, WrapperTable, WrapperUpload } from './style';
 import ButtonComponent from '../ButtonComponent/ButtonComponent';
 import 'react-quill/dist/quill.snow.css';
@@ -10,20 +10,128 @@ import * as ProductService from '../../services/ProductService';
 import { useMyMutationHook } from '../../hooks/useMutationHook';
 import * as m from '../../components/MessageComponent/MessageComponent';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import Highlighter from 'react-highlight-words';
 
 const AdminPageProduct = () => {
   const queryClient = useQueryClient();
+  const [searchText, setSearchText] = useState('');
+  const [searchedColumn, setSearchedColumn] = useState('');
+  const searchInput = useRef(null);
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText('');
+  };
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+      <div
+        style={{
+          padding: 8,
+        }}
+        onKeyDown={(e) => e.stopPropagation()}
+      >
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{
+            marginBottom: 8,
+            display: 'block',
+          }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{
+              width: 90,
+            }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{
+              width: 90,
+            }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({
+                closeDropdown: false,
+              });
+              setSearchText(selectedKeys[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Filter
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              close();
+            }}
+          >
+            close
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined
+        style={{
+          color: filtered ? '#1677ff' : undefined,
+        }}
+      />
+    ),
+    onFilter: (value, record) =>
+      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+    onFilterDropdownOpenChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInput.current?.select(), 100);
+      }
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{
+            backgroundColor: '#ffc069',
+            padding: 0,
+          }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ''}
+        />
+      ) : (
+        text
+      ),
+  });
   const columns = [
     {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      ...getColumnSearchProps('name'),
       width: 400,
       render: (text) => (
         <Tooltip title={text}>
           <span
             style={{
-              display: 'block',
               maxWidth: '250px',
               display: '-webkit-box',
               WebkitLineClamp: 2,
@@ -42,11 +150,13 @@ const AdminPageProduct = () => {
       title: 'Price',
       dataIndex: 'price',
       key: 'price',
+      sorter: (a, b) => a.price - b.price,
     },
     {
       title: 'Quantity',
       dataIndex: 'quantity',
       key: 'quantity',
+      sorter: (a, b) => a.quantity - b.quantity,
     },
     {
       title: 'Image',
@@ -95,6 +205,8 @@ const AdminPageProduct = () => {
     type: '',
     quantity: '',
   });
+  const [form] = Form.useForm();
+  
 
   const mutation = useMyMutationHook(async (data) => {
     const res = await ProductService.createProduct(data);
@@ -102,7 +214,20 @@ const AdminPageProduct = () => {
   });
 
   const { data, isSuccess } = mutation;
-
+  const handleCancel = useCallback(() => {
+    setStateProduct({
+      name: '',
+      price: '',
+      description: '',
+      image: '',
+      type: '',
+      quantity: '',
+    });
+    setIsModalOpen(false);
+    setIsUpdateModalOpen(false);
+    form.resetFields();
+    setDescription('');
+  }, [form]);
   useEffect(() => {
     if (isSuccess && data?.status === 'OK') {
       m.success('Thêm sản phẩm thành công');
@@ -111,7 +236,7 @@ const AdminPageProduct = () => {
     } else if (data?.status === 'ERR') {
       m.error('Sản phẩm này đã tồn tại');
     }
-  }, [isSuccess, data, queryClient]);
+  }, [isSuccess, data, queryClient, handleCancel]);
 
   const start = () => {
     setLoading(true);
@@ -136,22 +261,7 @@ const AdminPageProduct = () => {
   const showModal = () => {
     setIsModalOpen(true);
   };
-  const [form] = Form.useForm();
-  const handleCancel = () => {
-    setStateProduct({
-      name: '',
-      price: '',
-      description: '',
-      image: '',
-      type: '',
-      quantity: '',
-    })
-    setIsModalOpen(false);
-    setIsUpdateModalOpen(false);
-    form.resetFields();
-    setDescription('');
-  };
-
+  
   const onFinish = async (values) => {
     if (isUpdateModalOpen) {
       updateMutation.mutate({
@@ -186,6 +296,20 @@ const AdminPageProduct = () => {
     m.success('Xóa thành công')
   };
 
+  //Xóa nhiều sản phẩm
+  const deleteManyMutation = useMyMutationHook(async (ids) => {
+    const res = await ProductService.deleteManyProduct(ids)
+    queryClient.invalidateQueries(['products']);
+    return res
+  });
+
+  const handleDeleteMany = () => {
+    console.log('Selected IDs:', selectedRowKeys);
+    deleteManyMutation.mutate(selectedRowKeys);
+    start()
+    m.success('Xóa thành công')
+  }
+
   // hiển thị danh sách sản phẩm
   const fetchAllProduct = async () => {
     const res = await ProductService.getAllProduct();
@@ -212,7 +336,7 @@ const AdminPageProduct = () => {
     } else if (updateData?.status === 'ERR') {
       m.error('Cập nhật sản phẩm thất bại')
     }
-  }, [updateData, updateSuccess, queryClient])
+  }, [updateData, updateSuccess, queryClient, handleCancel])
 
   const handleUpdate = (record) => {
     setEditingProduct(record);
@@ -241,6 +365,9 @@ const AdminPageProduct = () => {
       ...stateProduct,
       image: file.preview,
     });
+    form.setFieldsValue({
+      image: file.preview,
+    });
   };
   const uploadProps = {
     name: 'file',
@@ -267,6 +394,9 @@ const AdminPageProduct = () => {
       <WrapperHeader>Quản lý Sản phẩm</WrapperHeader>
       <Flex gap="middle" vertical>
         <Flex align="center" gap="middle">
+          <Button type="primary" danger onClick={handleDeleteMany} disabled={!hasSelected}>
+            Delete
+          </Button>
           <Button type="primary" onClick={start} disabled={!hasSelected} loading={loading}>
             Reload
           </Button>
@@ -324,24 +454,31 @@ const AdminPageProduct = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="description" label="Mô tả sản phẩm">
+                  <Form.Item name="description" 
+                    label="Mô tả sản phẩm" 
+                    rules={[{ required: true, message: 'Bạn cần nhập mô tả sản phẩm' }]}
+                  >
                     <WrapperReactQuill value={description} onChange={handleDescriptionChange} />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <div style={{ width: '500px', height: '100px', display: 'flex', flexDirection: 'row', marginBottom: '24px' }}>
-                    <WrapperUpload.Dragger {...uploadProps} onChange={onChangeImage} maxCount={1}>
-                      <p className="ant-upload-text">Kéo và thả ảnh vào đây, hoặc nhấp để chọn</p>
-                      <p className="ant-upload-hint">Hỗ trợ ảnh JPEG, PNG</p>
-                    </WrapperUpload.Dragger>
-                    {stateProduct?.image && (
-                      <img
-                        src={stateProduct?.image}
-                        alt="ảnh sản phẩm"
-                        style={{ width: '100px', height: '100px', objectFit: 'cover', marginLeft: '24px' }}
-                      />
-                    )}
-                  </div>
+                  <Form.Item name="image" 
+                    rules={[{ required: true, message: 'Bạn cần upload ảnh sản phẩm ở đây' }]}
+                  >
+                    <div style={{ width: '500px', height: '100px', display: 'flex', flexDirection: 'row', marginBottom: '24px' }}>
+                      <WrapperUpload.Dragger {...uploadProps} onChange={onChangeImage} maxCount={1}>
+                        <p className="ant-upload-text">Kéo và thả ảnh vào đây, hoặc nhấp để chọn</p>
+                        <p className="ant-upload-hint">Hỗ trợ ảnh JPEG, PNG</p>
+                      </WrapperUpload.Dragger>
+                      {stateProduct?.image && (
+                        <img
+                          src={stateProduct?.image}
+                          alt="ảnh sản phẩm"
+                          style={{ width: '100px', height: '100px', objectFit: 'cover', marginLeft: '24px' }}
+                        />
+                      )}
+                    </div>
+                  </Form.Item>
                   <Form.Item wrapperCol={{ offset: 10, span: 4 }}>
                     <ButtonComponent name="Lưu" width="100px" htmlType="submit" />
                   </Form.Item>
