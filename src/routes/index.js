@@ -1,4 +1,6 @@
 
+import AddressUser from "../components/AddressUser/AddressUser";
+import DetailUser from "../components/DetailUser/DetailUser";
 import AdminPage from "../pages/AdminPage/AdminPage";
 import HomePage from "../pages/HomePage/HomePage";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
@@ -47,7 +49,17 @@ export const routes = [
     {
         path: '/profile-user',
         page: ProfileUserPage,
-        isShowHeader: true
+        isShowHeader: true,
+        children: [
+            {
+                path: 'detail',
+                element: <DetailUser />
+            },
+            {
+                path: 'address',
+                element: <AddressUser />
+            },
+        ]
     },
     {
         path: '*',

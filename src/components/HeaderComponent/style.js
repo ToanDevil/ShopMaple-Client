@@ -1,6 +1,7 @@
-import { Col, Space } from 'antd';
+import { Col, Space, Input } from 'antd';
 import { ShoppingCartOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
+const { Search } = Input;
 
 // export const WrapperSearch = styled(Search)`
 //   .ant-input-search-button {
@@ -11,7 +12,6 @@ import styled from 'styled-components';
 export const WrapperHeader = styled.div`
   height: 120px;
   background: rgb(34,193,195);
-  background: l
 `
 export const ColLogo = styled(Col)`
   font-size: 24px;
@@ -40,3 +40,28 @@ export const Link = styled.span`
     color: rgb(248,71,47)
   }
 `
+export const CustomSearch = styled(Search)`
+  width: 100%; // Adjust the width of the Search input
+  margin: 0 44px;
+  .ant-input-group-addon button {
+    height: 40px; 
+    border: 4px solid white;
+    width: 70px;
+    background-color: rgb(248, 75, 47); 
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+  }
+
+  :where(.css-dev-only-do-not-override-1qfezbu).ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover{
+    background-color: rgb(248, 75, 47);
+  }
+
+  .ant-input {
+    height: 40px; // Adjust the height of the input field to match the button
+  }
+  .ant-btn-icon {
+    font-size: 18px;
+  }
+`;

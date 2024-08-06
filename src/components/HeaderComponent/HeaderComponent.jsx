@@ -1,10 +1,10 @@
 import React from 'react'
-import { Col, Row, Space, Flex, Dropdown, Avatar, Input, Image } from 'antd'
+import { Col, Row, Space, Flex, Dropdown, Avatar, Image } from 'antd'
 import {
   UserOutlined, PauseOutlined, FacebookFilled, InstagramFilled,
   QuestionCircleOutlined, BellOutlined
 } from '@ant-design/icons';
-import { CartIcon, ColLogo, Option, WrapperHeader, TextSign, Link } from './style';
+import { CartIcon, ColLogo, Option, WrapperHeader, TextSign, Link, CustomSearch } from './style';
 import Logo from '../../asset/images/Logo.png'
 import { useNavigate } from 'react-router-dom';
 import * as UserService from '../../services/UserService';
@@ -79,7 +79,6 @@ const HeaderComponent = () => {
     display: 'flex',
     alignItems: 'center'
   }
-  const { Search } = Input;
   const onSearch = (value, _e, info) => console.log(info?.source, value);
 
 
@@ -140,7 +139,7 @@ const HeaderComponent = () => {
           <Image src={Logo} alt="Logo" preview={false} onClick={handleNavigateHome} style={{ cursor: 'pointer' }}></Image>
         </ColLogo>
         <Col span={16}>
-          <Search placeholder="Tìm kiếm" onSearch={onSearch} enterButton />
+          <CustomSearch placeholder="Tìm kiếm" onSearch={onSearch} enterButton />
         </Col>
         <Col span={4}>
           <Flex justify='center' align='center'>
