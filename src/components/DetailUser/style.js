@@ -7,6 +7,7 @@ export const WrapperMenu = styled(Col)`
 export const WrapperContent = styled(Col)`
     padding: 20px;
     background: #fff;
+    min-width: 80vh;
 `
 
 export const ContentMenu = styled(Menu)`

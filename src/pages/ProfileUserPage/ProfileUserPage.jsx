@@ -120,7 +120,7 @@ const ProfileUserPage = () => {
             case '3':
                 return <AddressUser/>;
             default:
-                return <DetailUser/>;
+                return <>Chức năng đang phát triển</>;
         }
     }
     return (

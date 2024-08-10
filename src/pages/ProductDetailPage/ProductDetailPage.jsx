@@ -8,26 +8,42 @@ import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent';
 import FreeShipIcon from '../../asset/images/freeShip.png'
 import * as ProductService from '../../services/ProductService'
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Link from 'antd/es/typography/Link';
+import { useDispatch, useSelector } from 'react-redux';
+import { addOrder } from '../../redux/slices/orderSlice';
 
 const ProductDetailPage = () => {
-    const [value, setValue] = useState(1);
+    const [amount, setAmount] = useState(1);
     const [product, setProduct] = useState(null);
+    const location = useLocation()
+    const dispatch = useDispatch()
+    const user = useSelector((state) => state.user)
     const navigate = useNavigate()
     const { id } = useParams();
     const onChange = (newValue) => {
-        setValue(newValue);
+        setAmount(newValue);
     };
     const handleNavigateHome = () => {
         navigate('/')
     }
+    const handleNavigateCategoryProductPage = () => {
+        navigate(`/category/${product.type}`)
+    }
+
+    const FormattedPrice = ({ value }) => {
+        const formattedPrice = Number(value).toLocaleString('vi-VN');
+        return <Price>{formattedPrice}</Price>;
+    };
 
     useEffect(() => {
         const fetchProduct = async () => {
             try {
                 const res = await ProductService.getDetailProduct(id);
-                setProduct(res.data.data);
+                const p = res.data.data
+                const c_p = { ...p._doc, type_name: p.type }
+                // console.log('c_p', c_p)
+                setProduct(c_p);
             } catch (error) {
                 console.error('Error fetching product:', error);
             }
@@ -35,6 +51,22 @@ const ProductDetailPage = () => {
 
         fetchProduct();
     }, [id]);
+
+    const handleAddOrder = () => {
+        if(!user.id){
+            navigate('/sign-in', {state: location?.pathname})
+        }else{
+            dispatch(addOrder({
+                orderItem: {
+                    name: product?.name,
+                    image: product?.image,
+                    price: product?.price,
+                    product: product?._id,
+                    amount: amount
+                }
+            }))
+        }
+    }
 
     return (
         <WrapperContainer>
@@ -44,7 +76,7 @@ const ProductDetailPage = () => {
                         title: <Link onClick={handleNavigateHome}>Trang chủ</Link>,
                     },
                     {
-                        title: <span>{product?.type}</span>,
+                        title: <Link onClick={handleNavigateCategoryProductPage}>{product?.type_name}</Link>,
                     },
                     {
                         title: <span>{product?.name}</span>,
@@ -56,7 +88,7 @@ const ProductDetailPage = () => {
                     <img
                         alt="example"
                         src={product?.image}
-                        style={{ width: '100%', objectFit: 'cover', backgroundSize: 'cover' }}
+                        style={{width: '85%', height:'400px', objectFit: 'cover', backgroundSize: 'cover' }}
                     />
                     <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '10px' }} >
                         <img
@@ -86,7 +118,10 @@ const ProductDetailPage = () => {
                         <div><span style={{ paddingLeft: '15px' }}>2k Đã bán</span></div>
                     </Flex>
                     <div style={{ margin: '30px 0' }}>
-                        <Price><UnitPrice>₫</UnitPrice>{product?.price}</Price>
+                        <Flex justify='flex-start' align='center'>
+                            <UnitPrice>₫</UnitPrice>
+                            <FormattedPrice value={product?.price} />
+                        </Flex>
                     </div>
                     <div>
                         <WrapperRow>
@@ -111,14 +146,14 @@ const ProductDetailPage = () => {
                             <Col span={4}><MoreInfo>Số lượng</MoreInfo></Col>
                             <Col span={20}>
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    <ButtonQuantity onClick={() => value > 1 ? onChange(value - 1) : onChange(value)}><MinusOutlined /></ButtonQuantity>
-                                    <InputQuantity min={1} value={value} onChange={onChange} />
-                                    <ButtonQuantity onClick={() => onChange(value + 1)}><PlusOutlined /></ButtonQuantity>
+                                    <ButtonQuantity onClick={() => amount > 1 ? onChange(amount - 1) : onChange(amount)}><MinusOutlined /></ButtonQuantity>
+                                    <InputQuantity min={1} value={amount} onChange={onChange} max={product?.quantity} />
+                                    <ButtonQuantity onClick={() => onChange(amount + 1)}><PlusOutlined /></ButtonQuantity>
                                 </div>
                             </Col>
                         </WrapperRow>
                         <GroupButton>
-                            <ButtonComponent name="Thêm vào giỏ hàng" color="#ffeee8" textColor='red' width='45%'></ButtonComponent>
+                            <ButtonComponent name="Thêm vào giỏ hàng" color="#ffeee8" textColor='red' width='45%' onClick = {handleAddOrder}></ButtonComponent>
                             <ButtonComponent name="Mua ngay" width='45%'></ButtonComponent>
                         </GroupButton>
                     </div>

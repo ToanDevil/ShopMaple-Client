@@ -34,7 +34,7 @@ const AdminPageHeader = () => {
                     <Image src={Logo} alt="Logo" preview={false} style={{ height:'100%', width:'200px' }}></Image>
                     <Flex justify='space-between' align='center'>
                         <WrapperSpace justify='space-between' align='center'>
-                            <Span>{user?.username}</Span>
+                            <Span style={{paddingRight: '10px'}}>{user?.username}</Span>
                             <img src={user?.avatar} alt="avatar" style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
                         </WrapperSpace>
                         <WrapperSpace justify='space-between' align='center' style={{cursor: 'pointer'}} onClick={handleNavigateHome}>

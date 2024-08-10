@@ -7,6 +7,7 @@ import ButtonComponent from '../ButtonComponent/ButtonComponent';
 import 'react-quill/dist/quill.snow.css';
 import { getBase64 } from '../../utils';
 import * as ProductService from '../../services/ProductService';
+import * as CategoryProductService from '../../services/CategoryProductService'
 import { useMyMutationHook } from '../../hooks/useMutationHook';
 import * as m from '../../components/MessageComponent/MessageComponent';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -206,7 +207,7 @@ const AdminPageProduct = () => {
     quantity: '',
   });
   const [form] = Form.useForm();
-  
+
 
   const mutation = useMyMutationHook(async (data) => {
     const res = await ProductService.createProduct(data);
@@ -261,7 +262,7 @@ const AdminPageProduct = () => {
   const showModal = () => {
     setIsModalOpen(true);
   };
-  
+
   const onFinish = async (values) => {
     if (isUpdateModalOpen) {
       updateMutation.mutate({
@@ -283,6 +284,7 @@ const AdminPageProduct = () => {
       });
     }
   };
+
 
   // Xóa sản phẩm
   const deleteMutation = useMyMutationHook(async (id) => {
@@ -317,6 +319,14 @@ const AdminPageProduct = () => {
   };
 
   const { data: products } = useQuery({ queryKey: ['products'], queryFn: fetchAllProduct });
+
+  // hiển thị danh sách danh mục sản phẩm
+  const fetchAllCategory = async () => {
+    const res = await CategoryProductService.getAllCategory();
+    return res;
+  };
+
+  const { data: categories } = useQuery({ queryKey: ['categories'], queryFn: fetchAllCategory });
 
   // Cập nhật sản phẩm
   const updateMutation = useMyMutationHook(
@@ -440,9 +450,9 @@ const AdminPageProduct = () => {
                     rules={[{ required: true, message: 'Bạn cần chọn loại sản phẩm' }]}
                   >
                     <Select placeholder="Chọn loại sản phẩm">
-                      <Option value="electronics">Điện tử</Option>
-                      <Option value="clothing">Quần áo</Option>
-                      <Option value="furniture">Nội thất</Option>
+                      {categories?.data.map(category => (
+                        <Option key={category._id} value={category._id}>{category.name}</Option>
+                      ))}
                     </Select>
                   </Form.Item>
                   <Form.Item
@@ -454,15 +464,15 @@ const AdminPageProduct = () => {
                   </Form.Item>
                 </Col>
                 <Col span={12}>
-                  <Form.Item name="description" 
-                    label="Mô tả sản phẩm" 
+                  <Form.Item name="description"
+                    label="Mô tả sản phẩm"
                     rules={[{ required: true, message: 'Bạn cần nhập mô tả sản phẩm' }]}
                   >
                     <WrapperReactQuill value={description} onChange={handleDescriptionChange} />
                   </Form.Item>
                 </Col>
                 <Col span={24}>
-                  <Form.Item name="image" 
+                  <Form.Item name="image"
                     rules={[{ required: true, message: 'Bạn cần upload ảnh sản phẩm ở đây' }]}
                   >
                     <div style={{ width: '500px', height: '100px', display: 'flex', flexDirection: 'row', marginBottom: '24px' }}>
@@ -522,9 +532,9 @@ const AdminPageProduct = () => {
                     rules={[{ required: true, message: 'Bạn cần chọn loại sản phẩm' }]}
                   >
                     <Select placeholder="Chọn loại sản phẩm">
-                      <Option value="electronics">Điện tử</Option>
-                      <Option value="clothing">Quần áo</Option>
-                      <Option value="furniture">Nội thất</Option>
+                      {categories?.data.map(category => (
+                        <Option key={category._id} value={category._id}>{category.name}</Option>
+                      ))}
                     </Select>
                   </Form.Item>
                   <Form.Item

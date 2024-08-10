@@ -6,7 +6,7 @@ import ButtonComponent from '../../components/ButtonComponent/ButtonComponent'
 import Logo from '../../asset/images/Logo2.png'
 import Logo1 from '../../asset/images/Logo.png'
 import { TextSign } from '../../components/HeaderComponent/style'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import * as UserService from  '../../services/UserService'
 import * as message from '../../components/MessageComponent/MessageComponent'
 import { useMyMutationHook } from '../../hooks/useMutationHook'
@@ -16,6 +16,7 @@ import { updateUser } from '../../redux/slices/userSlice'
 
 const SignInPage = () => {
     const dispatch = useDispatch()
+    const location = useLocation()
     const mutation = useMyMutationHook(
         data => UserService.loginUser(data)
     )
@@ -33,14 +34,19 @@ const SignInPage = () => {
     /*eslint-disable*/
     useEffect(() => {
         if(isSuccess && data.status !== 'ERR'){
+            
             // message.success('Đăng nhập thanh công!')
             localStorage.setItem('access_token', data?.access_token)
             if(data?.access_token){
                 const decoded = jwtDecode(data?.access_token)
                 console.log('decode', decoded)
                 if(decoded?.id){
-                    handleGetDetailUser(decoded?.id, data?.access_token)
-                    navigate('/')
+                    handleGetDetailUser(decoded?.id, data?.access_token)   
+                    if(location?.state){
+                        navigate(location?.state)
+                    }else{
+                        navigate('/')
+                    }
                 }
             }
         }else if(isWarning){

@@ -10,7 +10,7 @@ import ProductDetailPage from "../pages/ProductDetailPage/ProductDetailPage";
 import ProfileUserPage from "../pages/ProfileUserPage/ProfileUserPage";
 import SignInPage from "../pages/SignInPage/SignInPage";
 import SignUpPage from "../pages/SignUpPage/SignUpPage";
-import TypeProductPage from "../pages/TypeProductPage/TypeProductPage";
+import CategoryProductPage from "../pages/CategoryProductPage/CategoryProductPage";
 
 export const routes = [
     {
@@ -29,8 +29,8 @@ export const routes = [
         isShowHeader: true 
     },
     {
-        path: '/type',
-        page: TypeProductPage,
+        path: '/category/:id',
+        page: CategoryProductPage,
         isShowHeader: true
     },
     {

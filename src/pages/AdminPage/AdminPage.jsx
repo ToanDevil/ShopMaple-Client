@@ -8,6 +8,7 @@ import { Col, Row } from 'antd'
 import { ContentMenu } from './style'
 import AdminPageListUser from '../../components/AdminPageListUser/AdminPageListUser'
 import AdminPageProduct from '../../components/AdminPageProduct/AdminPageProduct'
+import AdminPageCategory from '../../components/AdminPageCategory/AdminPageCategory'
 
 const AdminPage = () => {
   const items = [
@@ -37,7 +38,7 @@ const AdminPage = () => {
       case 'sub1':
         return <AdminPageListUser />;
       case 'sub2':
-        return <AdminPageProduct />;
+        return <AdminPageCategory />;
       case 'sub3':
         return <AdminPageProduct />;
       default: 

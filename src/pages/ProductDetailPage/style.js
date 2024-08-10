@@ -6,8 +6,14 @@ export const WrapperContainer = styled.div`
 `;
 
 export const WrapperContent = styled(Row)`
-    padding: 20px 20px;
-    background: #fff
+    padding: 40px 40px;
+    background: #fff;
+    img {
+        max-width: 100%; 
+        max-height: 100%; 
+        object-fit: contain;
+        height: auto; 
+    }
 `
 export const UnitPrice = styled.span`
     font-size: 1.8rem;

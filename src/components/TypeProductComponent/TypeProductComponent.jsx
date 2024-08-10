@@ -1,8 +1,8 @@
 import React from 'react'
-import './style.css'
-const TypeProductComponent = ({name}) => {
+import './style.js'
+const TypeProductComponent = ({name, onClick}) => {
   return (
-    <div className='type__product'>
+    <div onClick={onClick} style={{ cursor: 'pointer', height: '44px', display: 'flex', alignItems: 'center', padding: '0 16px'}} >
         {name}
     </div>
   )

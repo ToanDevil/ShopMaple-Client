@@ -1,5 +1,5 @@
 import React from 'react'
-import { Col, Row, Space, Flex, Dropdown, Avatar, Image } from 'antd'
+import { Col, Row, Space, Flex, Dropdown, Avatar, Image, Badge } from 'antd'
 import {
   UserOutlined, PauseOutlined, FacebookFilled, InstagramFilled,
   QuestionCircleOutlined, BellOutlined
@@ -15,6 +15,7 @@ const HeaderComponent = () => {
 
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const order = useSelector((state) =>  state.order)
 
   const handleLogOut = async () => {
     await UserService.logoutUser()
@@ -37,6 +38,13 @@ const HeaderComponent = () => {
   const handleNavigateAdminPage = () => {
     navigate('/system/admin')
   }
+  const handleNavigateCartPage = () => {
+    if(user.id){
+      navigate('/order')
+    }else{
+      navigate('/sign-in')
+    }
+  }
   const user = useSelector((state) => state.user)
 
   const items = [
@@ -55,7 +63,7 @@ const HeaderComponent = () => {
           Trang quản lý
         </span>
       ),
-    }):null,
+    }) : null,
     {
       key: '2',
       label: (
@@ -143,7 +151,10 @@ const HeaderComponent = () => {
         </Col>
         <Col span={4}>
           <Flex justify='center' align='center'>
-            <CartIcon />
+            {user.id ? (<Badge count={order?.orderItems?.length} overflowCount={10}>
+              <CartIcon onClick={handleNavigateCartPage}/>
+            </Badge>) :
+            (<CartIcon onClick={handleNavigateCartPage}/>)}
           </Flex>
         </Col>
       </Row>
