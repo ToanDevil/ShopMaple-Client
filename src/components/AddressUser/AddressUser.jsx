@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Divider, Flex, Select, Input, Checkbox, Alert, Row, Col } from 'antd';
 import { CustomInput, CustomModal, WrapperContent } from './style';
 import ButtonComponent from '../ButtonComponent/ButtonComponent';
@@ -22,6 +22,7 @@ const AddressUser = () => {
   const [commune, setCommune] = useState('');
   const [homeNumber, setHomeNumber] = useState('');
   const [addressMain, setAddressMain] = useState()
+  const [disabled, setDisabled] = useState(false);
   const user = useSelector((state) => state.user)
   const [phone, setPhone] = useState(user.phone)
   const [name, setName] = useState(user.name)
@@ -66,6 +67,7 @@ const AddressUser = () => {
     setHomeNumber('')
     setCenter({ lat: 10.8231, lng: 106.6297 });
     setIsModalOpen(false);
+    setAddressMain(false)
     setPhone(user.phone)
     setName(user.name)
     setShowAlert(false)
@@ -94,6 +96,16 @@ const AddressUser = () => {
     return res;
   };
   const { data: addresses } = useQuery({ queryKey: ['addresses'], queryFn: fetchAllAddressUser });
+  useEffect(() => {
+    const checkAddressMain = addresses?.data?.filter(address => address.addressMain);
+    if (checkAddressMain && checkAddressMain.length > 0) {
+      setAddressMain(false);
+      setDisabled(false)
+    } else {
+      setAddressMain(true);
+      setDisabled(true)
+    }
+  }, [addresses]);
 
   // Xóa địa chỉ
   const handleDeleteAddress = async (addressId) => {
@@ -120,7 +132,7 @@ const AddressUser = () => {
     if (phone && name && city && district && commune && homeNumber) {
       const userId = user.id
       const data = { phone, name, city, district, commune, addressMain, homeNumber, userId }
-      const res = await AddressService.updateAddress(address._id,data)
+      const res = await AddressService.updateAddress(address._id, data)
       if (res.status === 'OK') {
         m.success('Cập nhật địa chỉ thành công!')
         queryClient.invalidateQueries(['addresses']);
@@ -142,8 +154,8 @@ const AddressUser = () => {
     }
   }
   // đặt địa chỉ làm mặc định
-  const handleSetAddressMain =async (id) => {
-    const res = await AddressService.updateAddress(id, {addressMain: true})
+  const handleSetAddressMain = async (id) => {
+    const res = await AddressService.updateAddress(id, { addressMain: true })
     queryClient.invalidateQueries(['addresses']);
     console.log(res)
   }
@@ -172,14 +184,17 @@ const AddressUser = () => {
                     </Flex>
                     <span style={{ color: '#bbb', padding: '8px 0' }}>Địa chỉ: {`${address.homeNumber}, ${address.commune}, ${address.district}, ${address.city}`}</span>
                     {address.addressMain === true ? (
-                      <span style={{color:'rgb(248, 75, 47)'}}>Mặc định</span>
+                      <span style={{ color: 'rgb(248, 75, 47)' }}>Mặc định</span>
                     ) : null}
                   </Flex>
                 </Col>
                 <Col span={4}>
                   <Flex style={{ justifyContent: 'space-around', alignItems: 'center', marginBottom: '8px' }}>
                     <Link onClick={() => handleGetDetailAddress(address._id)}>Cập nhật</Link>
-                    <Link onClick={() => handleDeleteAddress(address._id)}>Xóa</Link>
+                    { address.addressMain && addresses?.data.length > 1  ? 
+                      (null) 
+                      : (<Link onClick={() => handleDeleteAddress(address._id)}>Xóa</Link>)
+                    }
                   </Flex>
                   {address.addressMain === true ?
                     (
@@ -189,7 +204,7 @@ const AddressUser = () => {
                     ) :
                     (
                       <Flex style={{ justifyContent: 'space-around', alignItems: 'center' }}>
-                        <ButtonComponent name={'Đặt làm mặc định'} color='#bbb' width='70px' onClick={() => handleSetAddressMain(address._id)}/>
+                        <ButtonComponent name={'Đặt làm mặc định'} color='#bbb' width='70px' onClick={() => handleSetAddressMain(address._id)} />
                       </Flex>
                     )
                   }
@@ -302,7 +317,7 @@ const AddressUser = () => {
           />
         </div>
         <MyMapComponent center={center} />
-        <Checkbox onChange={onChange} style={{ marginTop: '14px' }}>Đặt làm địa chỉ chính</Checkbox>
+        <Checkbox onChange={onChange} style={{ marginTop: '14px' }} checked={addressMain} disabled={disabled} >Đặt làm địa chỉ chính</Checkbox>
       </CustomModal>
 
       <CustomModal title="Cập nhật địa chỉ" open={isModalUpdateOpen} onOk={handleUpdate} onCancel={handleCancel} width={600}>
@@ -403,7 +418,7 @@ const AddressUser = () => {
           />
         </div>
         <MyMapComponent center={center} />
-        <Checkbox onChange={onChange} style={{ marginTop: '14px' }} checked={addressMain}>Đặt làm địa chỉ chính</Checkbox>
+        <Checkbox onChange={onChange} style={{ marginTop: '14px' }} checked={addressMain} disabled={address.addressMain ? true : false} >Đặt làm địa chỉ chính</Checkbox>
       </CustomModal>
     </WrapperContent>
   );

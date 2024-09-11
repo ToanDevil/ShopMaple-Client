@@ -8,18 +8,22 @@ import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent';
 import FreeShipIcon from '../../asset/images/freeShip.png'
 import * as ProductService from '../../services/ProductService'
+import * as CartService from '../../services/CartService'
+import * as m from '../../components/MessageComponent/MessageComponent'
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Link from 'antd/es/typography/Link';
 import { useDispatch, useSelector } from 'react-redux';
-import { addOrder } from '../../redux/slices/orderSlice';
+import { updateSizeCart } from '../../redux/slices/cartSlice';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const ProductDetailPage = () => {
     const [amount, setAmount] = useState(1);
     const [product, setProduct] = useState(null);
     const location = useLocation()
-    const dispatch = useDispatch()
+    const queryClient = useQueryClient();
     const user = useSelector((state) => state.user)
     const navigate = useNavigate()
+    const dispatch = useDispatch()
     const { id } = useParams();
     const onChange = (newValue) => {
         setAmount(newValue);
@@ -52,21 +56,45 @@ const ProductDetailPage = () => {
         fetchProduct();
     }, [id]);
 
-    const handleAddOrder = () => {
-        if(!user.id){
-            navigate('/sign-in', {state: location?.pathname})
-        }else{
-            dispatch(addOrder({
-                orderItem: {
-                    name: product?.name,
-                    image: product?.image,
-                    price: product?.price,
-                    product: product?._id,
-                    amount: amount
-                }
-            }))
+    // get all item in cart
+    const fetchAllItems = async () => {
+        const res = await CartService.getAllItem(user?.id);
+        return res.data;
+    };
+    const { refetch } = useQuery({
+        queryKey: ['items', user?.id],  // Thêm user.id vào queryKey để theo dõi thay đổi
+        queryFn: fetchAllItems,
+        enabled: !!user?.id,  // Chỉ chạy khi user.id tồn tại
+    });
+    const handleAddToCart = async () => {
+        if (!user.id) {
+            navigate('/sign-in', { state: location?.pathname })
+        } else {
+            const res = await CartService.add(id, { amount: amount, userId: user.id })
+            if (res?.status === "OK") {
+                m.success("Thêm vào giỏ hàng thành công")
+                await refetch();
+                const updatedItems = queryClient.getQueryData(['items']);
+                dispatch(updateSizeCart({ number: updatedItems?.length }));
+            }
         }
     }
+
+    useEffect(() => {
+        const fetchListItems = async (id) => {
+            try {
+                const res = await CartService.getAllItem(id);
+                dispatch(updateSizeCart({ number: res?.data.length }))
+            } catch (err) {
+                console.error('Error fetching items:', err);
+            }
+        };
+
+        if (user?.id) {
+            fetchListItems(user.id);
+        }
+    }, [user, dispatch]);
+
 
     return (
         <WrapperContainer>
@@ -88,7 +116,7 @@ const ProductDetailPage = () => {
                     <img
                         alt="example"
                         src={product?.image}
-                        style={{width: '85%', height:'400px', objectFit: 'cover', backgroundSize: 'cover' }}
+                        style={{ width: '85%', height: '400px', objectFit: 'cover', backgroundSize: 'cover' }}
                     />
                     <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '10px' }} >
                         <img
@@ -153,7 +181,7 @@ const ProductDetailPage = () => {
                             </Col>
                         </WrapperRow>
                         <GroupButton>
-                            <ButtonComponent name="Thêm vào giỏ hàng" color="#ffeee8" textColor='red' width='45%' onClick = {handleAddOrder}></ButtonComponent>
+                            <ButtonComponent name="Thêm vào giỏ hàng" color="#ffeee8" textColor='red' width='45%' onClick={handleAddToCart}></ButtonComponent>
                             <ButtonComponent name="Mua ngay" width='45%'></ButtonComponent>
                         </GroupButton>
                     </div>

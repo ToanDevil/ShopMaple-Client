@@ -29,7 +29,7 @@ export const refreshToken = async () => {
     const res = await axios.post(`${process.env.REACT_APP_API_URL}/user/refresh-token`, {
         withCredentials: true
     })
-    return res.data.token
+    return res.data
 }
 
 export const logoutUser = async () => {

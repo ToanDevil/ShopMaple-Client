@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Col, Row, Space, Flex, Dropdown, Avatar, Image, Badge } from 'antd'
 import {
   UserOutlined, PauseOutlined, FacebookFilled, InstagramFilled,
@@ -10,19 +10,21 @@ import { useNavigate } from 'react-router-dom';
 import * as UserService from '../../services/UserService';
 import { useDispatch, useSelector } from 'react-redux';
 import { resetUser } from '../../redux/slices/userSlice';
+import * as CartService from '../../services/CartService'
+import { updateSizeCart } from '../../redux/slices/cartSlice';
 
 const HeaderComponent = () => {
 
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const order = useSelector((state) =>  state.order)
-
-  const handleLogOut = async () => {
-    await UserService.logoutUser()
-    dispatch(resetUser())
-    localStorage.removeItem('access_token')
-    navigate('/')
-  }
+  const cart = useSelector((state) => state.cart)
+  const user = useSelector((state) => state.user)
+  const handleLogOut = useCallback(async () => {
+    await UserService.logoutUser();
+    dispatch(resetUser());
+    localStorage.removeItem('access_token');
+    navigate('/');
+  }, [dispatch, navigate]);
   const handleNavigateHome = () => {
     navigate('/')
   }
@@ -39,13 +41,34 @@ const HeaderComponent = () => {
     navigate('/system/admin')
   }
   const handleNavigateCartPage = () => {
-    if(user.id){
+    if (user.id) {
       navigate('/order')
-    }else{
+    } else {
       navigate('/sign-in')
     }
   }
-  const user = useSelector((state) => state.user)
+  // console.log('acc', localStorage.getItem('access_token'))
+  
+
+  useEffect(() => {
+    console.log(user)
+    // if(!user?._id){
+    //   handleLogOut()
+    // }
+    const fetchCartSize = async (userId) => {
+      try {
+        const res = await CartService.getAllItem(userId);
+        const totalItems = res?.data?.length;
+        dispatch(updateSizeCart({ number: totalItems }));
+      } catch (err) {
+        console.error('Error fetching cart size:', err);
+      }
+    };
+    if (user?.id) {
+      fetchCartSize(user.id);
+    }
+  }, [user, dispatch, cart, handleLogOut]);
+  
 
   const items = [
     {
@@ -151,10 +174,10 @@ const HeaderComponent = () => {
         </Col>
         <Col span={4}>
           <Flex justify='center' align='center'>
-            {user.id ? (<Badge count={order?.orderItems?.length} overflowCount={10}>
-              <CartIcon onClick={handleNavigateCartPage}/>
+            {user.id ? (<Badge count={cart.number} overflowCount={10}>
+              <CartIcon onClick={handleNavigateCartPage} />
             </Badge>) :
-            (<CartIcon onClick={handleNavigateCartPage}/>)}
+              (<CartIcon onClick={handleNavigateCartPage} />)}
           </Flex>
         </Col>
       </Row>

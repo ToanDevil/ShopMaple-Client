@@ -6,11 +6,13 @@ import HomePage from "../pages/HomePage/HomePage";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
 
 import OrderPage from "../pages/OrderPage/OrderPage";
+import PaymentPage from "../pages/PaymentPage/PaymentPage";
 import ProductDetailPage from "../pages/ProductDetailPage/ProductDetailPage";
 import ProfileUserPage from "../pages/ProfileUserPage/ProfileUserPage";
 import SignInPage from "../pages/SignInPage/SignInPage";
 import SignUpPage from "../pages/SignUpPage/SignUpPage";
 import CategoryProductPage from "../pages/CategoryProductPage/CategoryProductPage";
+import OrderSuccessPage from "../pages/OrderSuccessPage/OrderSuccessPage";
 
 export const routes = [
     {
@@ -21,6 +23,11 @@ export const routes = [
     {
         path: '/order',
         page: OrderPage,
+        isShowHeader: true 
+    },
+    {
+        path: '/payment/:id',
+        page: PaymentPage,
         isShowHeader: true 
     },
     {
@@ -60,6 +67,10 @@ export const routes = [
                 element: <AddressUser />
             },
         ]
+    },
+    {
+        path: '/order-success',
+        page: OrderSuccessPage,
     },
     {
         path: '*',
