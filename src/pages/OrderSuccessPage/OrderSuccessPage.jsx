@@ -13,23 +13,26 @@ const OrderSuccessPage = () => {
     const handleNavigateHome = () => {
         navigate('/')
     }
+    const handleNavigatePurchase = () => {
+        navigate('/user/purchase')
+    }
     return (
         <>
             <WrapperHeader>
                 <Flex align='center'>
-                <Image src={Logo} alt="Logo" preview={false} onClick={handleNavigateHome}></Image>
+                    <Image src={Logo} alt="Logo" preview={false} onClick={handleNavigateHome}></Image>
                 </Flex>
                 <Flex align='center'>
-                    <span style={{color: 'red' }}>Bạn cần giúp đỡ?</span>
+                    <span style={{ color: 'red' }}>Bạn cần giúp đỡ?</span>
                 </Flex>
             </WrapperHeader>
             <WrapperBody>
                 <WrapperContent>
-                    <h2 style={{color: '#fff'}}>Đặt hàng thành công!</h2>
-                    <Flex justify='space-between' align='center' style={{width: '100%'}}>
-                        <ButtonComponent name="Trở về" color='rgb(248, 75, 47)' onClick = {() => {navigate('/')}} ></ButtonComponent>
-                        <ButtonComponent name="Đơn mua" color='rgb(248, 75, 47)' ></ButtonComponent>
-                    </Flex>               
+                    <h2 style={{ color: '#fff' }}>Đặt hàng thành công!</h2>
+                    <Flex justify='space-between' align='center' style={{ width: '100%' }}>
+                        <ButtonComponent name="Trở về" color='rgb(248, 75, 47)' onClick={() => { navigate('/') }} ></ButtonComponent>
+                        <ButtonComponent name="Đơn mua" color='rgb(248, 75, 47)' onClick={handleNavigatePurchase}></ButtonComponent>
+                    </Flex>
                 </WrapperContent>
             </WrapperBody>
         </>

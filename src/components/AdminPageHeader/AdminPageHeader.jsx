@@ -28,7 +28,7 @@ const AdminPageHeader = () => {
         scriptUrl: '//at.alicdn.com/t/font_8d5l8fzk5b87iudi.js',
     });
     return (
-        <div>
+        <div style={{position: 'fixed', width: '100%', top: '0', zIndex: '1000'}}>
             <WrapperHeader style={{height: '60px'}}>
                 <Flex justify='space-between' align='center' style={{height: '100%', padding:'0 20px'}}>
                     <Image src={Logo} alt="Logo" preview={false} style={{ height:'100%', width:'200px' }}></Image>

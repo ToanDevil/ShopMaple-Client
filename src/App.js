@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import * as UserService from './services/UserService'
 import * as ProductService from './services/ProductService'
 import * as CategoryProductService from './services/CategoryProductService'
+import * as OrderService from './services/OrderService'
 import { jwtDecode } from 'jwt-decode'
 import { resetUser, updateUser } from './redux/slices/userSlice'
 
@@ -77,6 +78,7 @@ function App() {
   registerInterceptors(UserService.axiosJWT);
   registerInterceptors(ProductService.axiosJWT);
   registerInterceptors(CategoryProductService.axiosJWT);
+  registerInterceptors(OrderService.axiosJWT);
 
 
   const handleGetDetailUser = async (id, token) => {
@@ -95,11 +97,31 @@ function App() {
             const Layout = route.isShowHeader ? DefaultComponent : Fragment
             return (
               isCheckAuth ? (
-                <Route key = {route.path} path={route.path} element={
-                  <Layout>
-                    <Page />
-                  </Layout>
-                }></Route>
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  element={
+                    <Layout>
+                      <Page />
+                    </Layout>
+                  }
+                >
+                  {route.children && route.children.map((child) => (
+                    <Route
+                      key={child.path}
+                      path={child.path}
+                      element={child.page ? <child.page /> : null}
+                    >
+                      {child.children && child.children.map((grandchild) => (
+                        <Route
+                          key={grandchild.path}
+                          path={grandchild.path}
+                          element={grandchild.page ? <grandchild.page /> : null}
+                        />
+                      ))}
+                    </Route>
+                  ))}
+                </Route>
               ) : null
             )
           }))}

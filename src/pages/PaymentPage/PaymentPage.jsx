@@ -261,7 +261,11 @@ const PaymentPage = () => {
             })
             if(createOrder.status === 'OK'){
                 const ids = order.items.map(item => (item.productId._id))
-                await CartService.deleteManyItem(ids)
+                const data = {
+                    productIds : ids,
+                    userId: user.id
+                }
+                await CartService.deleteManyItem(data)
                 navigate('/order-success')
             }
             else{
@@ -270,6 +274,7 @@ const PaymentPage = () => {
         }
     }
     // console.log('userID', user)
+    console.log('order', order)
     return (
         <Container>
             <TableTitle>Thanh toán</TableTitle>
@@ -280,11 +285,11 @@ const PaymentPage = () => {
                         <Col span={20}>
                             <Flex style={{ flexDirection: 'column', padding: '10px 20px' }}>
                                 <Flex align='center' justify='flex-start'>
-                                    <span>{defaultAddress.name}</span>
+                                    <span>{defaultAddress?.name}</span>
                                     <span style={{ padding: '0 8px', color: '#bbb' }}>|</span>
-                                    <span style={{ color: '#bbb' }}>{defaultAddress.phone}</span>
+                                    <span style={{ color: '#bbb' }}>{defaultAddress?.phone}</span>
                                 </Flex>
-                                <span style={{ color: '#bbb', padding: '8px 0' }}>Địa chỉ: {`${defaultAddress.homeNumber}, ${defaultAddress.commune}, ${defaultAddress.district}, ${defaultAddress.city}`}</span>
+                                <span style={{ color: '#bbb', padding: '8px 0' }}>Địa chỉ: {`${defaultAddress?.homeNumber}, ${defaultAddress?.commune}, ${defaultAddress?.district}, ${defaultAddress?.city}`}</span>
                             </Flex>
                         </Col>
                         <Col span={4}>

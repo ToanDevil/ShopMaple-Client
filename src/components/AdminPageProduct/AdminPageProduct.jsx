@@ -123,7 +123,7 @@ const AdminPageProduct = () => {
   });
   const columns = [
     {
-      title: 'Name',
+      title: 'Tên sản phẩm',
       dataIndex: 'name',
       key: 'name',
       sorter: (a, b) => a.name.localeCompare(b.name),
@@ -148,19 +148,19 @@ const AdminPageProduct = () => {
       ),
     },
     {
-      title: 'Price',
+      title: 'Đơn giá',
       dataIndex: 'price',
       key: 'price',
       sorter: (a, b) => a.price - b.price,
     },
     {
-      title: 'Quantity',
+      title: 'Tổng số lượng',
       dataIndex: 'quantity',
       key: 'quantity',
       sorter: (a, b) => a.quantity - b.quantity,
     },
     {
-      title: 'Image',
+      title: 'Ảnh sản phẩm',
       dataIndex: 'image',
       key: 'image',
       render: (text, record) => (
@@ -174,7 +174,7 @@ const AdminPageProduct = () => {
       ),
     },
     {
-      title: 'Action',
+      title: 'Hành động',
       key: 'action',
       render: (text, record) => (
         <div>

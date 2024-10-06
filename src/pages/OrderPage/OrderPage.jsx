@@ -137,7 +137,7 @@ const OrderPage = () => {
     ];
 
     const onSelectChange = (newSelectedRowKeys) => {
-        console.log('selectedRowKeys changed: ', newSelectedRowKeys);
+        // console.log('selectedRowKeys changed: ', newSelectedRowKeys);
         setSelectedRowKeys(newSelectedRowKeys);
     };
     const rowSelection = {
@@ -147,6 +147,7 @@ const OrderPage = () => {
 
     const handleNavigatePaymentPage = () => {
         const selectedItems = items?.filter(item => selectedRowKeys.includes(item.productId._id)) || [];
+        console.log('selectedItems', selectedItems)
         dispatch(addOrder({
             items: selectedItems,
             orderPrice: totalAmount,

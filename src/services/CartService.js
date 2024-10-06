@@ -20,8 +20,8 @@ export const deleteItem = async (productId) => {
     return res.data
 }
 
-export const deleteManyItem = async (productIds) => {
-    console.log('ids', productIds)
-    const res = await axios.put(`${process.env.REACT_APP_API_URL}/cart/delete-many`, {productIds})
+export const deleteManyItem = async (data) => {
+    console.log('data', data)
+    const res = await axios.put(`${process.env.REACT_APP_API_URL}/cart/delete-many`, data)
     return res.data
 }

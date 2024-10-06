@@ -35,10 +35,13 @@ const HeaderComponent = () => {
     navigate('/sign-up')
   }
   const handleNavigateProfile = () => {
-    navigate('/profile-user')
+    navigate('/user/account/profile')
+  }
+  const handleNavigatePurchase = () => {
+    navigate('/user/purchase')
   }
   const handleNavigateAdminPage = () => {
-    navigate('/system/admin')
+    navigate('/admin')
   }
   const handleNavigateCartPage = () => {
     if (user.id) {
@@ -90,7 +93,7 @@ const HeaderComponent = () => {
     {
       key: '2',
       label: (
-        <span onClick={handleNavigateProfile} style={{ cursor: 'pointer' }}>
+        <span onClick={handleNavigatePurchase} style={{ cursor: 'pointer' }}>
           Đơn mua
         </span>
       ),

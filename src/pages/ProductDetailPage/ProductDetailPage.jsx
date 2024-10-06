@@ -15,6 +15,7 @@ import Link from 'antd/es/typography/Link';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateSizeCart } from '../../redux/slices/cartSlice';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { addOrder } from '../../redux/slices/orderSlice';
 
 const ProductDetailPage = () => {
     const [amount, setAmount] = useState(1);
@@ -94,6 +95,23 @@ const ProductDetailPage = () => {
             fetchListItems(user.id);
         }
     }, [user, dispatch]);
+
+    const handleNavigatePaymentPage = () => {
+        const items = [
+            {
+                amount: amount,
+                productId: product
+            }
+        ]
+        dispatch(addOrder({
+            items: items,
+            orderPrice: amount * product.price,
+            shippingPrice: 0,
+            taxPrice: 0,
+            totalPrice: amount * product.price +  0 + 0,
+        }))
+        navigate(`/payment/${user.id}`);
+    };
 
 
     return (
@@ -182,7 +200,7 @@ const ProductDetailPage = () => {
                         </WrapperRow>
                         <GroupButton>
                             <ButtonComponent name="Thêm vào giỏ hàng" color="#ffeee8" textColor='red' width='45%' onClick={handleAddToCart}></ButtonComponent>
-                            <ButtonComponent name="Mua ngay" width='45%'></ButtonComponent>
+                            <ButtonComponent name="Mua ngay" width='45%' onClick={handleNavigatePaymentPage}></ButtonComponent>
                         </GroupButton>
                     </div>
                 </Col>

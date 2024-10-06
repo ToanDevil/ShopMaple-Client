@@ -125,7 +125,7 @@ const AdminPageListUser = () => {
 
   const columns = [
     {
-      title: 'Username',
+      title: 'Tên người dùng',
       dataIndex: 'username',
       key: 'username',
       sorter: (a, b) => {
@@ -152,7 +152,7 @@ const AdminPageListUser = () => {
       ),
     },
     {
-      title: 'Phone',
+      title: 'Số điện thoại',
       dataIndex: 'phone',
       key: 'phone',
       ...getColumnSearchProps('phone'),
@@ -161,17 +161,17 @@ const AdminPageListUser = () => {
       ),
     },
     {
-      title: 'Email',
+      title: 'E-mail',
       dataIndex: 'email',
       key: 'email',
     },
     {
-      title: 'Address',
+      title: 'Địa chỉ',
       dataIndex: 'address',
       key: 'address',
     },
     {
-      title: 'Gender',
+      title: 'Giới tính',
       dataIndex: 'sex',
       key: 'sex',
       filters: [
@@ -199,7 +199,7 @@ const AdminPageListUser = () => {
       ),
     },
     {
-      title: 'Created At',
+      title: 'Ngày tạo',
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (text, record) => (
@@ -209,7 +209,7 @@ const AdminPageListUser = () => {
       ),
     },
     {
-      title: 'Status',
+      title: 'Trạng thái',
       dataIndex: 'status',
       key: 'status',
       render: (text, record) => (
@@ -217,7 +217,7 @@ const AdminPageListUser = () => {
       ),
     },
     {
-      title: 'Action',
+      title: 'Hành động',
       key: 'action',
       render: (text, record) => (
         <div>

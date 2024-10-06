@@ -155,7 +155,7 @@ const AddressUser = () => {
   }
   // đặt địa chỉ làm mặc định
   const handleSetAddressMain = async (id) => {
-    const res = await AddressService.updateAddress(id, { addressMain: true })
+    const res = await AddressService.updateAddress(id, { addressMain: true, userId: user.id })
     queryClient.invalidateQueries(['addresses']);
     console.log(res)
   }
