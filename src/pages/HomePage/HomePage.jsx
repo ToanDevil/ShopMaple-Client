@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TypeProductComponent from '../../components/TypeProductComponent/TypeProductComponent';
 import { Flex, Pagination } from 'antd';
 import SliderComponent from '../../components/SliderComponent/SliderComponent';
@@ -12,53 +12,53 @@ import { WrapperCardComponent } from '../CategoryProductPage/style';
 import { useQuery } from '@tanstack/react-query';
 import * as ProductService from '../../services/ProductService'
 import * as CategoryProductService from '../../services/CategoryProductService'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BtnShowMoreProduct, Container, ContainerProduct } from './style.js';
 
 const HomePage = () => {
   const [showMore, setShowMore] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate()
+  const itemsPerPage = 24; // Số sản phẩm trên mỗi trang
 
-  const fetchAllProduct = async () => {
-    const res = await ProductService.getAllProduct()
+  const fetchAllProduct = async ({ queryKey }) => {
+    const [, page] = queryKey;
+    const res = await ProductService.getAllProduct({ page: page, limit: itemsPerPage })
+    console.log('res', res)
     return res
   }
-  const { data: products } = useQuery({ queryKey: ['products'], queryFn: fetchAllProduct })
+  const { data: products } = useQuery({ queryKey: ['products', currentPage], queryFn: fetchAllProduct })
 
   // hiển thị danh sách danh mục sản phẩm
   const fetchAllCategory = async () => {
     const res = await CategoryProductService.getAllCategory();
     return res;
   };
-
-  const { data: categories } = useQuery({ queryKey: ['categories'], queryFn: fetchAllCategory });
+  console.log('currentpage', currentPage)
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: fetchAllCategory
+  });
 
   // console.log('Products', products)
-  const itemsPerPage = 24; // Số sản phẩm trên mỗi trang
-
-  // Mảng chứa các phần tử JSX của WrapperCardComponent
-  let wrapperCardComponents = [];
+  // phân trang
+  // Lấy giá trị trang từ URL
+  const [searchParams, setSearchParams] = useSearchParams(); // Sử dụng useSearchParams để lấy tham số trang
+  useEffect(() => {
+    const page = searchParams.get('page') || 1; // Lấy giá trị từ URL hoặc mặc định là trang 1
+    setCurrentPage(Number(page));
+  }, [searchParams]);
 
   // Duyệt qua mỗi phần tử và thêm vào mảng JSX
-  const lengthProduct = products?.data?.length || 0;
-
-  if (lengthProduct > 30) {
-    for (let i = 0; i < 30; i++) {
-      const product = products?.data[i]
-      wrapperCardComponents.push(
-        <WrapperCardComponent key={product?._id} width="calc(16.66667% - 10px)" product={product} />
-      )
-    }
-  }
-  else {
-    wrapperCardComponents = [];
-    for (let i = (currentPage - 1) * itemsPerPage; i < Math.min(currentPage * itemsPerPage, lengthProduct); i++) {
-      const product = products?.data[i]
-      wrapperCardComponents.push(
-        <WrapperCardComponent key={product?._id} width="calc(16.66667% - 10px)" product={product} />
-      )
-    }
+  let wrapperCardComponents = []
+  if(!showMore){
+    wrapperCardComponents = products?.data?.slice(0,18).map(product => (
+      <WrapperCardComponent key={product._id} width="calc(16.66667% - 10px)" product={product} />
+    ));
+  }else if(showMore){
+    wrapperCardComponents = products?.data?.map(product => (
+      <WrapperCardComponent key={product._id} width="calc(16.66667% - 10px)" product={product} />
+    ));
   }
 
   const handleShowMore = () => {
@@ -66,6 +66,7 @@ const HomePage = () => {
   };
 
   const handlePageChange = (page) => {
+    setSearchParams({ page }); // Cập nhật tham số URL với page
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'auto' });
   };
@@ -76,9 +77,9 @@ const HomePage = () => {
 
   return (
     <Container>
-      <Flex justify='flex-start' align='center' style={{backgroundColor: '#fff'}}>
+      <Flex justify='flex-start' align='center' style={{ backgroundColor: '#fff' }}>
         {categories?.data.map(category => (
-          <TypeProductComponent name={category.name} key={category._id} onClick={() => handleNavigateCategoryProductPage(category._id)}/>
+          <TypeProductComponent name={category.name} key={category._id} onClick={() => handleNavigateCategoryProductPage(category._id)} />
         ))}
       </Flex>
       <SliderComponent arrImage={[slide1, slide2, slide3, slide4, slide5]} />
@@ -86,7 +87,7 @@ const HomePage = () => {
         <Flex justify='flex-start' align='flex-start' wrap='wrap' gap={'10px'}>
           {wrapperCardComponents}
         </Flex>
-        {!showMore && wrapperCardComponents.length < lengthProduct && (
+        {!showMore && (
           <BtnShowMoreProduct>
             <ButtonComponent name="Xem thêm" onClick={handleShowMore} />
           </BtnShowMoreProduct>
@@ -94,10 +95,12 @@ const HomePage = () => {
         {
           showMore && (
             <Pagination
-              defaultCurrent={currentPage}
-              total={lengthProduct}
+              current={products?.currentPage || 1} // Sử dụng currentPage từ API
+              total={products?.total || 0}          // Sử dụng tổng số sản phẩm từ API
               pageSize={itemsPerPage}
               onChange={handlePageChange}
+              style={{ marginTop: '20px', textAlign: 'center' }}
+              showSizeChanger={false} // Tắt khả năng thay đổi số sản phẩm trên trang
             />
           )
         }

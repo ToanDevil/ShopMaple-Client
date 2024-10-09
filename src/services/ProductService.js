@@ -1,7 +1,8 @@
 import axios from "axios"
 export const axiosJWT = axios.create()
-export const getAllProduct = async () => {
-    const res = await axios.get(`${process.env.REACT_APP_API_URL}/product/list-product`)
+export const getAllProduct = async (data) => {
+    console.log(data)
+    const res = await axios.get(`${process.env.REACT_APP_API_URL}/product/list-product`, {params: data})
     return res.data
 }
 

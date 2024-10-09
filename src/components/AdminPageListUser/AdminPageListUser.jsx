@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { WrapperContainer, WrapperFlex, WrapperHeader, WrapperSpan } from '../AdminPageListUser/style';
 import { Button, Flex, Table, Tooltip, Row, Col, Image, Avatar, Switch, Input, Space } from 'antd';
-import { EyeOutlined, DeleteOutlined, UserOutlined,SearchOutlined } from '@ant-design/icons';
+import { EyeOutlined, DeleteOutlined, UserOutlined, SearchOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import * as UserService from '../../services/UserService';
 import { WrapperModal } from '../AdminPageProduct/style';
@@ -17,7 +17,7 @@ const AdminPageListUser = () => {
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef(null);
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    confirm();  
+    confirm();
     setSearchText(selectedKeys[0]);
     setSearchedColumn(dataIndex);
   };
@@ -168,6 +168,9 @@ const AdminPageListUser = () => {
     {
       title: 'Địa chỉ',
       dataIndex: 'address',
+      render: (text, record) => (
+        <span>{record?.mainAddress?.city || "Chưa cập nhật"}</span>
+      ),
       key: 'address',
     },
     {
@@ -280,6 +283,7 @@ const AdminPageListUser = () => {
   const { data: users } = useQuery({ queryKey: ['users'], queryFn: fetchAllUser });
 
   const handleGetDetail = (record) => {
+    console.log('detailUser', record)
     setSelectedUser(record);
     setIsDetailModalOpen(true);
   };
@@ -300,7 +304,12 @@ const AdminPageListUser = () => {
           </Button>
           {hasSelected ? `Selected ${selectedRowKeys.length} items` : null}
         </Flex>
-        <Table rowSelection={rowSelection} columns={columns} dataSource={users?.data?.map((user) => ({ ...user, key: user._id }))} pagination={{ pageSize: 5 }} />
+        <Table
+          rowSelection={rowSelection}
+          columns={columns}
+          dataSource={users?.data?.map((user) => ({ ...user, key: user._id }))}
+          pagination={{ pageSize: 5 }} 
+        />
       </Flex>
       <WrapperModal
         title="Chi tiết Người dùng"
@@ -332,14 +341,13 @@ const AdminPageListUser = () => {
             </Col>
             <Col span={16}>
               <WrapperFlex justify='center' align='flex-start'>
-                <WrapperSpan><strong>Username:</strong> {selectedUser.username}</WrapperSpan>
-                <WrapperSpan><strong>Address:</strong> {selectedUser.address}</WrapperSpan>
-                {selectedUser.sex === 0 && (<WrapperSpan><strong>Gender:</strong> Không rõ</WrapperSpan>)}
-                {selectedUser.sex === 1 && (<WrapperSpan><strong>Gender:</strong> Nam</WrapperSpan>)}
-                {selectedUser.sex === 2 && (<WrapperSpan><strong>Gender:</strong> Nữ</WrapperSpan>)}
-                <WrapperSpan><strong>Date of birth:</strong> {selectedUser.dob}</WrapperSpan>
-                <WrapperSpan><strong>Created At:</strong> {format(new Date(selectedUser.createdAt), 'dd/MM/yyyy HH:mm:ss')}</WrapperSpan>
-                <WrapperSpan><strong>Status:</strong> {selectedUser.status}</WrapperSpan>
+                <WrapperSpan><strong>Tên đăng nhập:</strong> {selectedUser.username}</WrapperSpan>
+                <WrapperSpan><strong>Địa chỉ:</strong> {selectedUser.mainAddress ? (<>{selectedUser.mainAddress?.homeNumber}, {selectedUser.mainAddress?.commune}, {selectedUser.mainAddress?.district}, {selectedUser.mainAddress?.city}</>):("Chưa cập nhật")}</WrapperSpan>
+                {selectedUser.sex === 0 && (<WrapperSpan><strong>Giới tính:</strong> Không rõ</WrapperSpan>)}
+                {selectedUser.sex === 1 && (<WrapperSpan><strong>Giới tính:</strong> Nam</WrapperSpan>)}
+                {selectedUser.sex === 2 && (<WrapperSpan><strong>Giới tính:</strong> Nữ</WrapperSpan>)}
+                <WrapperSpan><strong>Ngày sinh:</strong> {format(new Date(selectedUser.dob), 'dd/MM/yyyy')}</WrapperSpan>
+                <WrapperSpan><strong>Ngày tạo tài khoản:</strong> {format(new Date(selectedUser.createdAt), 'dd/MM/yyyy HH:mm:ss')}</WrapperSpan>
               </WrapperFlex>
             </Col>
           </Row>
