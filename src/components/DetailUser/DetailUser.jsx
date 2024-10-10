@@ -51,7 +51,7 @@ const DetailUser = () => {
         if (res.status === 'OK') {
             dispatch(updateUser(res.data));
             m.success('Cập nhật thành công!')
-            navigate('/profile-user');
+            navigate('/user/account/profile');
         } else {
             console.error('Update failed:', res.message);
         }
