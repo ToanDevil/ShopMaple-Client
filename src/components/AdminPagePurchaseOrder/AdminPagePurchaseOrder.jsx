@@ -12,6 +12,7 @@ import { StyledTable } from './style';
 //icon
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCancel, faPeopleCarryBox, faSquareCheck, faTruckFast, faPenToSquare, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import LoadingComponent from '../LoadingComponent/LoadingComponent';
 
 const AdminPagePurchaseOrder = () => {
     const [searchText, setSearchText] = useState('');
@@ -285,13 +286,14 @@ const AdminPagePurchaseOrder = () => {
                         onClick={() => handleGetDetail(record)}
                         style={{ marginRight: 8 }}
                     />
-                    <Button danger onClick={() => handleUpdateStatus(record.key)} disabled = {record.status === "Delivered" || record.status === "Cancelled"}  >Xác nhận</Button>
+                    <Button danger onClick={() => handleUpdateStatus(record.key)} disabled={record.status === "Delivered" || record.status === "Cancelled"}  >Xác nhận</Button>
                 </div>
             ),
         },
     ];
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [loadingData, setLoadingData] = useState(true); // load data khi mới vào trang
 
     const start = () => {
         setLoading(true);
@@ -315,6 +317,7 @@ const AdminPagePurchaseOrder = () => {
     // danh sách đơn đặt hàng
     const fetchAllOrder = async () => {
         const res = await OrderService.getAllOrder();
+        if (res) { setLoadingData(false) }
         return res.data;
     };
 
@@ -329,11 +332,11 @@ const AdminPagePurchaseOrder = () => {
     const [codeOrder, setCodeOrder] = useState('')
     const handleOk = async () => {
         const data = await OrderService.updateStatus(codeOrder)
-        if(data.status === "OK"){
+        if (data.status === "OK") {
             setIsModalOpen(false)
             queryClient.invalidateQueries(['userOrders']);
             m.success("Trạng thái đơn hàng cập nhật thành công!")
-        }else{
+        } else {
             m.warning("Hệ thông gặp sự cố! Vui lòng thử lại sau!")
         }
     };
@@ -416,77 +419,82 @@ const AdminPagePurchaseOrder = () => {
             <Modal title="Thông báo" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
                 <p>Xác nhận trạng thái của đơn hàng {codeOrder}</p>
             </Modal>
-            <WrapperHeader>Quản lý đơn hàng</WrapperHeader>
-            <div style={{ margin: '20px' }}>
-                <Row>
-                    <Col span={1}><FontAwesomeIcon icon={faPenToSquare} /></Col>
-                    <Col span={23}>Chờ xác nhận: <span style={{ fontSize: '18px', color: '#C7253E' }}>{orderCounts.pending}</span></Col>
-                </Row>
-                <Row>
-                    <Col span={1}><FontAwesomeIcon icon={faPeopleCarryBox} /></Col>
-                    <Col span={23}>Chờ lấy hàng: <span style={{ fontSize: '18px', color: '#C7253E' }}>{orderCounts.processing}</span></Col>
-                </Row>
-                <Row>
-                    <Col span={1}><FontAwesomeIcon icon={faTruckFast} /></Col>
-                    <Col span={23}>Chờ giao hàng: <span style={{ fontSize: '18px', color: '#C7253E' }}>{orderCounts.shipped}</span></Col>
-                </Row>
-                <Row >
-                    <Col span={1}><FontAwesomeIcon icon={faSquareCheck} /></Col>
-                    <Col span={23}>Đã giao: <span style={{ fontSize: '18px', color: '#C7253E' }}>{orderCounts.delivered}</span></Col>
-                </Row>
-                <Row>
-                    <Col span={1}><FontAwesomeIcon icon={faCancel} /></Col>
-                    <Col span={23}>Đã hủy: <span style={{ fontSize: '18px', color: '#C7253E' }}>{orderCounts.cancelled}</span></Col>
-                </Row>
-                <Row style={{ color: 'red' }}>
-                    <Col span={1}><FontAwesomeIcon icon={faTriangleExclamation} /></Col>
-                    <Col span={23}>
-                        Ấn xác nhận khi đã hoàn thành trạng thái đơn hàng trước đó!
-                    </Col>
-                </Row>
-                 
-            </div>
-            <Flex gap="middle" vertical>
-                <Flex align="center" gap="middle">
-                    <Button type="primary" onClick={start} disabled={!hasSelected} loading={loading}>
-                        Reload
-                    </Button>
-                    {hasSelected ? `Selected ${selectedRowKeys.length} items` : null}
-                    <DatePicker.RangePicker
-                        onChange={(dates) => {
-                            if (dates && dates.length === 2) {
-                                setStartDate(dates[0]);
-                                setEndDate(dates[1]);
-                            } else {
-                                // Nếu không chọn ngày, có thể reset lại
-                                setStartDate(null);
-                                setEndDate(null);
-                            }
-                        }}
-                    />
+            {!loadingData ? (<>
+                <WrapperHeader>Quản lý đơn hàng</WrapperHeader>
+                <div style={{ margin: '20px' }}>
+                    <Row>
+                        <Col span={1}><FontAwesomeIcon icon={faPenToSquare} /></Col>
+                        <Col span={23}>Chờ xác nhận: <span style={{ fontSize: '18px', color: '#C7253E' }}>{orderCounts.pending}</span></Col>
+                    </Row>
+                    <Row>
+                        <Col span={1}><FontAwesomeIcon icon={faPeopleCarryBox} /></Col>
+                        <Col span={23}>Chờ lấy hàng: <span style={{ fontSize: '18px', color: '#C7253E' }}>{orderCounts.processing}</span></Col>
+                    </Row>
+                    <Row>
+                        <Col span={1}><FontAwesomeIcon icon={faTruckFast} /></Col>
+                        <Col span={23}>Chờ giao hàng: <span style={{ fontSize: '18px', color: '#C7253E' }}>{orderCounts.shipped}</span></Col>
+                    </Row>
+                    <Row >
+                        <Col span={1}><FontAwesomeIcon icon={faSquareCheck} /></Col>
+                        <Col span={23}>Đã giao: <span style={{ fontSize: '18px', color: '#C7253E' }}>{orderCounts.delivered}</span></Col>
+                    </Row>
+                    <Row>
+                        <Col span={1}><FontAwesomeIcon icon={faCancel} /></Col>
+                        <Col span={23}>Đã hủy: <span style={{ fontSize: '18px', color: '#C7253E' }}>{orderCounts.cancelled}</span></Col>
+                    </Row>
+                    <Row style={{ color: 'red' }}>
+                        <Col span={1}><FontAwesomeIcon icon={faTriangleExclamation} /></Col>
+                        <Col span={23}>
+                            Ấn xác nhận khi đã hoàn thành trạng thái đơn hàng trước đó!
+                        </Col>
+                    </Row>
 
-                    <Button
-                        type="primary"
-                        onClick={handleSearchByDate}
-                        disabled={!startDate || !endDate}
-                    >
-                        Tìm kiếm
-                    </Button>
-                    <Button
-                        type="default"
-                        onClick={handleResetSearch}
-                        disabled={filteredOrders.length === 0}
-                    >
-                        Hủy tìm kiếm
-                    </Button>
+                </div>
+                <Flex gap="middle" vertical>
+                    <Flex align="center" gap="middle">
+                        <Button type="primary" onClick={start} disabled={!hasSelected} loading={loading}>
+                            Reload
+                        </Button>
+                        {hasSelected ? `Selected ${selectedRowKeys.length} items` : null}
+                        <DatePicker.RangePicker
+                            onChange={(dates) => {
+                                if (dates && dates.length === 2) {
+                                    setStartDate(dates[0]);
+                                    setEndDate(dates[1]);
+                                } else {
+                                    // Nếu không chọn ngày, có thể reset lại
+                                    setStartDate(null);
+                                    setEndDate(null);
+                                }
+                            }}
+                        />
+
+                        <Button
+                            type="primary"
+                            onClick={handleSearchByDate}
+                            disabled={!startDate || !endDate}
+                        >
+                            Tìm kiếm
+                        </Button>
+                        <Button
+                            type="default"
+                            onClick={handleResetSearch}
+                            disabled={filteredOrders.length === 0}
+                        >
+                            Hủy tìm kiếm
+                        </Button>
+                    </Flex>
+                    <StyledTable
+                        rowSelection={rowSelection}
+                        columns={columns}
+                        dataSource={filteredOrders.length > 0 ? filteredOrders.map((userOrder) => ({ ...userOrder, key: userOrder._id })) : userOrders?.map((userOrder) => ({ ...userOrder, key: userOrder._id }))}
+                        pagination={{ pageSize: 10 }}
+                    />
                 </Flex>
-                <StyledTable
-                    rowSelection={rowSelection}
-                    columns={columns}
-                    dataSource={filteredOrders.length > 0 ? filteredOrders.map((userOrder) => ({ ...userOrder, key: userOrder._id })) : userOrders?.map((userOrder) => ({ ...userOrder, key: userOrder._id }))}
-                    pagination={{ pageSize: 10 }}
-                />
-            </Flex>
+            </>) : (
+                <LoadingComponent></LoadingComponent>
+            )}
+
         </WrapperContainer>
     )
 }

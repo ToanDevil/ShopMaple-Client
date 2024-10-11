@@ -54,7 +54,7 @@ const HeaderComponent = () => {
   
 
   useEffect(() => {
-    console.log(user)
+    // console.log(user)
     // if(!user?._id){
     //   handleLogOut()
     // }

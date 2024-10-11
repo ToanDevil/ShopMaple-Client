@@ -16,6 +16,7 @@ import AdminPageListUser from "../components/AdminPageListUser/AdminPageListUser
 import AdminPageCategory from "../components/AdminPageCategory/AdminPageCategory";
 import AdminPageProduct from "../components/AdminPageProduct/AdminPageProduct";
 import AdminPagePurchaseOrder from "../components/AdminPagePurchaseOrder/AdminPagePurchaseOrder";
+import PerOrderDetailComponent from "../components/PerOrderDetailComponent/PerOrderDetailComponent";
 
 export const routes = [
     {
@@ -71,7 +72,13 @@ export const routes = [
             },
             {
                 path: 'purchase',
-                page: PurchaseOrder 
+                page: PurchaseOrder,
+                children: [ 
+                    {
+                        path: ':id',
+                        page: PerOrderDetailComponent 
+                    },
+                ] 
             },
         ]
     },

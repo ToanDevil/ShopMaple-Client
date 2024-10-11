@@ -13,6 +13,10 @@ export const getUserOrder = async (userId) => {
     return res.data
 }
 
+export const getDetailOrderById = async (orderId) => {
+    const res = await axios.get(`${process.env.REACT_APP_API_URL}/order/getDetailOrderById/${orderId}`)
+    return res.data
+}
 export const updateStatus = async (orderId) => {
     const res = await axiosJWT.put(`${process.env.REACT_APP_API_URL}/order/update-status`, {orderId: orderId})
     return res.data

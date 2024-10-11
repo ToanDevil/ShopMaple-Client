@@ -16,6 +16,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateSizeCart } from '../../redux/slices/cartSlice';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { addOrder } from '../../redux/slices/orderSlice';
+import LoadingComponent from '../../components/LoadingComponent/LoadingComponent';
+import LikeButtonComponent from '../../components/LikeButtonComponent/LikeButtonComponent';
+import { initFacebookSDK } from '../../utils';
 
 const ProductDetailPage = () => {
     const [amount, setAmount] = useState(1);
@@ -26,6 +29,7 @@ const ProductDetailPage = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const { id } = useParams();
+    const [loading, setLoading] = useState(true); // Trạng thái loading
     const onChange = (newValue) => {
         setAmount(newValue);
     };
@@ -48,6 +52,7 @@ const ProductDetailPage = () => {
                 const p = res.data.data
                 const c_p = { ...p._doc, type_name: p.type }
                 // console.log('c_p', c_p)
+                if (res) { setLoading(false) }
                 setProduct(c_p);
             } catch (error) {
                 console.error('Error fetching product:', error);
@@ -97,23 +102,35 @@ const ProductDetailPage = () => {
     }, [user, dispatch]);
 
     const handleNavigatePaymentPage = () => {
-        const items = [
-            {
-                amount: amount,
-                productId: product
-            }
-        ]
-        dispatch(addOrder({
-            items: items,
-            orderPrice: amount * product.price,
-            shippingPrice: 0,
-            taxPrice: 0,
-            totalPrice: amount * product.price +  0 + 0,
-        }))
-        navigate(`/payment/${user.id}`);
+        if (!user.id) {
+            navigate('/sign-in', { state: location?.pathname })
+        } else {
+            const items = [
+                {
+                    amount: amount,
+                    productId: product
+                }
+            ]
+            dispatch(addOrder({
+                items: items,
+                orderPrice: amount * product.price,
+                shippingPrice: 0,
+                taxPrice: 0,
+                totalPrice: amount * product.price + 0 + 0,
+            }))
+            navigate(`/payment/${user.id}`);
+        }
     };
 
-
+    useEffect(() => {
+        initFacebookSDK();
+    
+        // Parse lại Facebook XFBML sau mỗi lần render
+        if (window.FB) {
+            window.FB.XFBML.parse();
+        }
+    }, [product]); // Chạy lại mỗi khi `product` thay đổi
+    
     return (
         <WrapperContainer>
             <Breadcrumb
@@ -129,86 +146,95 @@ const ProductDetailPage = () => {
                     },
                 ]}
             />
-            <WrapperContent>
-                <Col span={8}>
-                    <img
-                        alt="example"
-                        src={product?.image}
-                        style={{ width: '85%', height: '400px', objectFit: 'cover', backgroundSize: 'cover' }}
-                    />
-                    <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '10px' }} >
-                        <img
-                            alt="example"
-                            src={product?.image}
-                            style={{ width: '20%', objectFit: 'cover', backgroundSize: 'cover' }}
-                        />
-                        <img
-                            alt="example"
-                            src={product?.image}
-                            style={{ width: '20%', objectFit: 'cover', backgroundSize: 'cover' }}
-                        />
-                        <img
-                            alt="example"
-                            src={product?.image}
-                            style={{ width: '20%', objectFit: 'cover', backgroundSize: 'cover' }}
-                        />
-                    </div>
-                </Col>
-                <Col span={16} style={{ padding: '0 40px' }}>
-                    <div style={{ marginBottom: '20px' }}>
-                        <span style={{ fontSize: '2.5rem' }}>{product?.name}</span>
-                    </div>
-                    <Flex justify='flex-start' align='center'>
-                        <div style={{ borderRight: 'solid 1px #e8e8e8' }}><span style={{ paddingRight: '15px' }}>Đánh giá: 4.6/5</span></div>
-                        <div style={{ borderRight: 'solid 1px #e8e8e8' }}><span style={{ padding: '0 15px' }}>1,3k Đánh giá</span></div>
-                        <div><span style={{ paddingLeft: '15px' }}>2k Đã bán</span></div>
-                    </Flex>
-                    <div style={{ margin: '30px 0' }}>
-                        <Flex justify='flex-start' align='center'>
-                            <UnitPrice>₫</UnitPrice>
-                            <FormattedPrice value={product?.price} />
-                        </Flex>
-                    </div>
-                    <div>
-                        <WrapperRow>
-                            <Col span={4}><MoreInfo>Chính sách trả hàng</MoreInfo></Col>
-                            <Col span={20}>
-                                <div>
-                                    <span style={{ paddingRight: '10px' }}>Trả hàng trong 15 ngày</span>
-                                    <MoreInfo>Đổi ý miễn phí </MoreInfo>
-                                </div>
-                            </Col>
-                        </WrapperRow>
-                        <WrapperRow>
-                            <Col span={4}><MoreInfo>Vận chuyển</MoreInfo></Col>
-                            <Col span={20}>
+            {loading ? (<LoadingComponent></LoadingComponent>) : (
+                <>
+                    <WrapperContent>
+                        <Col span={8}>
+                            <img
+                                alt="example"
+                                src={product?.image}
+                                style={{ width: '85%', height: '400px', objectFit: 'cover', backgroundSize: 'cover' }}
+                            />
+                            <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '10px' }} >
+                                <img
+                                    alt="example"
+                                    src={product?.image}
+                                    style={{ width: '20%', objectFit: 'cover', backgroundSize: 'cover' }}
+                                />
+                                <img
+                                    alt="example"
+                                    src={product?.image}
+                                    style={{ width: '20%', objectFit: 'cover', backgroundSize: 'cover' }}
+                                />
+                                <img
+                                    alt="example"
+                                    src={product?.image}
+                                    style={{ width: '20%', objectFit: 'cover', backgroundSize: 'cover' }}
+                                />
+                            </div>
+                        </Col>
+                        <Col span={16} style={{ padding: '0 40px' }}>
+                            <div style={{ marginBottom: '20px' }}>
+                                <span style={{ fontSize: '2.5rem' }}>{product?.name}</span>
+                            </div>
+                            <Flex justify='flex-start' align='center'>
+                                <div style={{ borderRight: 'solid 1px #e8e8e8' }}><span style={{ paddingRight: '15px' }}>Đánh giá: 4.6/5</span></div>
+                                <div style={{ borderRight: 'solid 1px #e8e8e8' }}><span style={{ padding: '0 15px' }}>1,3k Đánh giá</span></div>
+                                <div><span style={{ paddingLeft: '15px' }}>2k Đã bán</span></div>
+                                
+                            </Flex>
+                            <div style={{marginTop: '20px'}}>
+                                <LikeButtonComponent dataHref="https://developers.facebook.com/docs/plugins/"/>
+                            </div>
+
+                            <div style={{ margin: '20px 0' }}>
                                 <Flex justify='flex-start' align='center'>
-                                    <img src={FreeShipIcon} alt="Free Shipping Icon" style={{ width: '20px', marginRight: '5px' }}></img>
-                                    <span> Miễn phí vận chuyển</span>
+                                    <UnitPrice>₫</UnitPrice>
+                                    <FormattedPrice value={product?.price} />
                                 </Flex>
-                            </Col>
-                        </WrapperRow>
-                        <WrapperRow>
-                            <Col span={4}><MoreInfo>Số lượng</MoreInfo></Col>
-                            <Col span={20}>
-                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    <ButtonQuantity onClick={() => amount > 1 ? onChange(amount - 1) : onChange(amount)}><MinusOutlined /></ButtonQuantity>
-                                    <InputQuantity min={1} value={amount} onChange={onChange} max={product?.quantity} />
-                                    <ButtonQuantity onClick={() => onChange(amount + 1)}><PlusOutlined /></ButtonQuantity>
-                                </div>
-                            </Col>
-                        </WrapperRow>
-                        <GroupButton>
-                            <ButtonComponent name="Thêm vào giỏ hàng" color="#ffeee8" textColor='red' width='45%' onClick={handleAddToCart}></ButtonComponent>
-                            <ButtonComponent name="Mua ngay" width='45%' onClick={handleNavigatePaymentPage}></ButtonComponent>
-                        </GroupButton>
-                    </div>
-                </Col>
-            </WrapperContent>
-            <div style={{ margin: '40px', fontSize: '2.2rem', fontWeight: '500' }}>Mô tả sản phẩm</div>
-            <WrapperContent>
-                <div dangerouslySetInnerHTML={{ __html: product?.description }} />
-            </WrapperContent>
+                            </div>
+                            <div>
+                                <WrapperRow>
+                                    <Col span={4}><MoreInfo>Chính sách trả hàng</MoreInfo></Col>
+                                    <Col span={20}>
+                                        <div>
+                                            <span style={{ paddingRight: '10px' }}>Trả hàng trong 15 ngày</span>
+                                            <MoreInfo>Đổi ý miễn phí </MoreInfo>
+                                        </div>
+                                    </Col>
+                                </WrapperRow>
+                                <WrapperRow>
+                                    <Col span={4}><MoreInfo>Vận chuyển</MoreInfo></Col>
+                                    <Col span={20}>
+                                        <Flex justify='flex-start' align='center'>
+                                            <img src={FreeShipIcon} alt="Free Shipping Icon" style={{ width: '20px', marginRight: '5px' }}></img>
+                                            <span> Miễn phí vận chuyển</span>
+                                        </Flex>
+                                    </Col>
+                                </WrapperRow>
+                                <WrapperRow>
+                                    <Col span={4}><MoreInfo>Số lượng</MoreInfo></Col>
+                                    <Col span={20}>
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            <ButtonQuantity onClick={() => amount > 1 ? onChange(amount - 1) : onChange(amount)}><MinusOutlined /></ButtonQuantity>
+                                            <InputQuantity min={1} value={amount} onChange={onChange} max={product?.quantity} />
+                                            <ButtonQuantity onClick={() => onChange(amount + 1)}><PlusOutlined /></ButtonQuantity>
+                                        </div>
+                                    </Col>
+                                </WrapperRow>
+                                <GroupButton>
+                                    <ButtonComponent name="Thêm vào giỏ hàng" color="#ffeee8" textColor='red' width='45%' onClick={handleAddToCart}></ButtonComponent>
+                                    <ButtonComponent name="Mua ngay" width='45%' onClick={handleNavigatePaymentPage}></ButtonComponent>
+                                </GroupButton>
+                            </div>
+                        </Col>
+                    </WrapperContent>
+                    <div style={{ margin: '40px', fontSize: '2.2rem', fontWeight: '500' }}>Mô tả sản phẩm</div>
+                    <WrapperContent>
+                        <div dangerouslySetInnerHTML={{ __html: product?.description }} />
+                    </WrapperContent>
+                </>
+            )}
         </WrapperContainer>
     )
 }

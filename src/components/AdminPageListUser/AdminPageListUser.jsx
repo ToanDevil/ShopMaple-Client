@@ -7,6 +7,7 @@ import * as UserService from '../../services/UserService';
 import { WrapperModal } from '../AdminPageProduct/style';
 import Highlighter from 'react-highlight-words';
 import { format } from 'date-fns';
+import LoadingComponent from '../LoadingComponent/LoadingComponent';
 
 
 const AdminPageListUser = () => {
@@ -16,6 +17,7 @@ const AdminPageListUser = () => {
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef(null);
+
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
     setSearchText(selectedKeys[0]);
@@ -242,6 +244,7 @@ const AdminPageListUser = () => {
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(true) //loading dữ liệu khi mới tải trang
 
   const start = () => {
     setLoading(true);
@@ -277,6 +280,7 @@ const AdminPageListUser = () => {
   // hiển thị danh sách người dùng
   const fetchAllUser = async () => {
     const res = await UserService.getAllUser();
+    if (res) { setLoadingData(false) }
     return res;
   };
 
@@ -294,67 +298,71 @@ const AdminPageListUser = () => {
   };
 
   return (
+    <>
+      {loadingData ? (<LoadingComponent></LoadingComponent>) : (
+        <WrapperContainer>
+          <WrapperHeader>Danh sách Người dùng</WrapperHeader>
+          <Flex gap="middle" vertical>
+            <Flex align="center" gap="middle">
+              <Button type="primary" onClick={start} disabled={!hasSelected} loading={loading}>
+                Reload
+              </Button>
+              {hasSelected ? `Selected ${selectedRowKeys.length} items` : null}
+            </Flex>
+            <Table
+              rowSelection={rowSelection}
+              columns={columns}
+              dataSource={users?.data?.map((user) => ({ ...user, key: user._id }))}
+              pagination={{ pageSize: 5 }}
+            />
+          </Flex>
+          <WrapperModal
+            title="Chi tiết Người dùng"
+            open={isDetailModalOpen}
+            width={1000}
+            onCancel={handleCancelDetailModal}
+            footer={[
+              <Button key="close" onClick={handleCancelDetailModal}>
+                Đóng
+              </Button>,
+            ]}
+          >
+            {selectedUser && (
+              <Row gutter={16}>
+                <Col span={8}>
+                  <WrapperFlex justify='center' align='center'>
+                    {selectedUser.avatar ? (
+                      <Image
+                        src={selectedUser.avatar}
+                        alt="avatar"
+                        style={{ width: '105px', height: '105px', borderRadius: '50%', objectFit: 'cover', marginTop: '24px' }}
+                      />
+                    ) : (
+                      <Avatar style={{ width: '105px', height: '105px' }} icon={<UserOutlined />} />
+                    )}
+                    <span><strong>Email</strong>: {selectedUser.email}</span>
+                    <span><strong>Phone</strong>: {'0' + selectedUser.phone}</span>
+                  </WrapperFlex>
+                </Col>
+                <Col span={16}>
+                  <WrapperFlex justify='center' align='flex-start'>
+                    <WrapperSpan><strong>Tên đăng nhập:</strong> {selectedUser.username}</WrapperSpan>
+                    <WrapperSpan><strong>Địa chỉ:</strong> {selectedUser.mainAddress ? (<>{selectedUser.mainAddress?.homeNumber}, {selectedUser.mainAddress?.commune}, {selectedUser.mainAddress?.district}, {selectedUser.mainAddress?.city}</>) : ("Chưa cập nhật")}</WrapperSpan>
+                    {selectedUser.sex === 0 && (<WrapperSpan><strong>Giới tính:</strong> Không rõ</WrapperSpan>)}
+                    {selectedUser.sex === 1 && (<WrapperSpan><strong>Giới tính:</strong> Nam</WrapperSpan>)}
+                    {selectedUser.sex === 2 && (<WrapperSpan><strong>Giới tính:</strong> Nữ</WrapperSpan>)}
+                    <WrapperSpan><strong>Ngày sinh:</strong> {format(new Date(selectedUser.dob), 'dd/MM/yyyy')}</WrapperSpan>
+                    <WrapperSpan><strong>Ngày tạo tài khoản:</strong> {format(new Date(selectedUser.createdAt), 'dd/MM/yyyy HH:mm:ss')}</WrapperSpan>
+                  </WrapperFlex>
+                </Col>
+              </Row>
 
-    <WrapperContainer>
-      <WrapperHeader>Danh sách Người dùng</WrapperHeader>
-      <Flex gap="middle" vertical>
-        <Flex align="center" gap="middle">
-          <Button type="primary" onClick={start} disabled={!hasSelected} loading={loading}>
-            Reload
-          </Button>
-          {hasSelected ? `Selected ${selectedRowKeys.length} items` : null}
-        </Flex>
-        <Table
-          rowSelection={rowSelection}
-          columns={columns}
-          dataSource={users?.data?.map((user) => ({ ...user, key: user._id }))}
-          pagination={{ pageSize: 5 }} 
-        />
-      </Flex>
-      <WrapperModal
-        title="Chi tiết Người dùng"
-        open={isDetailModalOpen}
-        width={1000}
-        onCancel={handleCancelDetailModal}
-        footer={[
-          <Button key="close" onClick={handleCancelDetailModal}>
-            Đóng
-          </Button>,
-        ]}
-      >
-        {selectedUser && (
-          <Row gutter={16}>
-            <Col span={8}>
-              <WrapperFlex justify='center' align='center'>
-                {selectedUser.avatar ? (
-                  <Image
-                    src={selectedUser.avatar}
-                    alt="avatar"
-                    style={{ width: '105px', height: '105px', borderRadius: '50%', objectFit: 'cover', marginTop: '24px' }}
-                  />
-                ) : (
-                  <Avatar style={{ width: '105px', height: '105px' }} icon={<UserOutlined />} />
-                )}
-                <span><strong>Email</strong>: {selectedUser.email}</span>
-                <span><strong>Phone</strong>: {'0' + selectedUser.phone}</span>
-              </WrapperFlex>
-            </Col>
-            <Col span={16}>
-              <WrapperFlex justify='center' align='flex-start'>
-                <WrapperSpan><strong>Tên đăng nhập:</strong> {selectedUser.username}</WrapperSpan>
-                <WrapperSpan><strong>Địa chỉ:</strong> {selectedUser.mainAddress ? (<>{selectedUser.mainAddress?.homeNumber}, {selectedUser.mainAddress?.commune}, {selectedUser.mainAddress?.district}, {selectedUser.mainAddress?.city}</>):("Chưa cập nhật")}</WrapperSpan>
-                {selectedUser.sex === 0 && (<WrapperSpan><strong>Giới tính:</strong> Không rõ</WrapperSpan>)}
-                {selectedUser.sex === 1 && (<WrapperSpan><strong>Giới tính:</strong> Nam</WrapperSpan>)}
-                {selectedUser.sex === 2 && (<WrapperSpan><strong>Giới tính:</strong> Nữ</WrapperSpan>)}
-                <WrapperSpan><strong>Ngày sinh:</strong> {format(new Date(selectedUser.dob), 'dd/MM/yyyy')}</WrapperSpan>
-                <WrapperSpan><strong>Ngày tạo tài khoản:</strong> {format(new Date(selectedUser.createdAt), 'dd/MM/yyyy HH:mm:ss')}</WrapperSpan>
-              </WrapperFlex>
-            </Col>
-          </Row>
+            )}
+          </WrapperModal>
+        </WrapperContainer>
+      )}
+    </>
 
-        )}
-      </WrapperModal>
-    </WrapperContainer>
 
   );
 };

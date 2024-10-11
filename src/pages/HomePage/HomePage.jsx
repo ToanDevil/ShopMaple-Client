@@ -14,16 +14,19 @@ import * as ProductService from '../../services/ProductService'
 import * as CategoryProductService from '../../services/CategoryProductService'
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BtnShowMoreProduct, Container, ContainerProduct } from './style.js';
+import LoadingComponent from '../../components/LoadingComponent/LoadingComponent.jsx';
 
 const HomePage = () => {
   const [showMore, setShowMore] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
   const itemsPerPage = 24; // Số sản phẩm trên mỗi trang
 
   const fetchAllProduct = async ({ queryKey }) => {
     const [, page] = queryKey;
     const res = await ProductService.getAllProduct({ page: page, limit: itemsPerPage })
+    if(res){setLoading(false)}
     console.log('res', res)
     return res
   }
@@ -83,28 +86,32 @@ const HomePage = () => {
         ))}
       </Flex>
       <SliderComponent arrImage={[slide1, slide2, slide3, slide4, slide5]} />
-      <ContainerProduct>
-        <Flex justify='flex-start' align='flex-start' wrap='wrap' gap={'10px'}>
-          {wrapperCardComponents}
-        </Flex>
-        {!showMore && (
-          <BtnShowMoreProduct>
-            <ButtonComponent name="Xem thêm" onClick={handleShowMore} />
-          </BtnShowMoreProduct>
-        )}
-        {
-          showMore && (
-            <Pagination
-              current={products?.currentPage || 1} // Sử dụng currentPage từ API
-              total={products?.total || 0}          // Sử dụng tổng số sản phẩm từ API
-              pageSize={itemsPerPage}
-              onChange={handlePageChange}
-              style={{ marginTop: '20px', textAlign: 'center' }}
-              showSizeChanger={false} // Tắt khả năng thay đổi số sản phẩm trên trang
-            />
-          )
-        }
-      </ContainerProduct>
+      {loading ? (<LoadingComponent height='45vh'></LoadingComponent>) : (
+        <>
+          <ContainerProduct>
+            <Flex justify='flex-start' align='flex-start' wrap='wrap' gap={'10px'}>
+              {wrapperCardComponents}
+            </Flex>
+            {!showMore && products?.total > 18 && (
+              <BtnShowMoreProduct>
+                <ButtonComponent name="Xem thêm" onClick={handleShowMore} />
+              </BtnShowMoreProduct>
+            )}
+            {
+              showMore && (
+                <Pagination
+                  current={products?.currentPage || 1} // Sử dụng currentPage từ API
+                  total={products?.total || 0}          // Sử dụng tổng số sản phẩm từ API
+                  pageSize={itemsPerPage}
+                  onChange={handlePageChange}
+                  style={{ marginTop: '20px', textAlign: 'center' }}
+                  showSizeChanger={false} // Tắt khả năng thay đổi số sản phẩm trên trang
+                />
+              )
+            }
+          </ContainerProduct>
+        </>
+      )}
     </Container>
   );
 };
