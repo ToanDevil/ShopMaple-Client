@@ -66,6 +66,6 @@
   "devDependencies": {
     "dotenv": "^16.4.5"
   },
-  "_comment": "proxy : https://shopmaple-server.onrender.com",
-  "proxy": "http://localhost:3001"
+  "_comment": "proxy : http://localhost:3001",
+  "proxy": "https://shopmaple-server.onrender.com"
 }
