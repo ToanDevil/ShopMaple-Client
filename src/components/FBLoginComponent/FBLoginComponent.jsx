@@ -6,14 +6,14 @@ import ButtonComponent from '../ButtonComponent/ButtonComponent';
 const FBLoginComponent = () => {
     const responseFacebook = (response) => {
         console.log("Facebook response:", response); // Ghi lại phản hồi
-        if (response.status !== "unknown") {
-            const { accessToken } = response;
+        if (response.status !== "unknown" && response.authResponse) {
+            const { accessToken } = response.authResponse; // Truy cập accessToken từ authResponse
             console.log("Facebook Access Token:", accessToken);
             handleFacebookLogin(accessToken);
         } else {
             console.error("User canceled login or did not fully authorize.");
         }
-    };
+    };    
 
     const handleFacebookLogin = async (accessToken) => {
         try {
