@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { WrapperBody, WrapperContent, WrapperHeader,MoreSideForm, MoreText, WarningText } from './style'
 import { Divider, Flex, Form, Image, Input, QRCode, Space } from 'antd'
-import { FacebookFilled,GoogleCircleFilled } from '@ant-design/icons'
+import { GoogleCircleFilled } from '@ant-design/icons'
 import ButtonComponent from '../../components/ButtonComponent/ButtonComponent'
 import Logo from '../../asset/images/Logo2.png'
 import Logo1 from '../../asset/images/Logo.png'
@@ -13,6 +13,10 @@ import { useMyMutationHook } from '../../hooks/useMutationHook'
 import { jwtDecode } from "jwt-decode";
 import { useDispatch } from 'react-redux'
 import { updateUser } from '../../redux/slices/userSlice'
+import { initFacebookSDK } from '../../utils'
+import FBLoginComponent from '../../components/FBLoginComponent/FBLoginComponent'
+
+
 
 const SignInPage = () => {
     const dispatch = useDispatch()
@@ -30,6 +34,16 @@ const SignInPage = () => {
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
     };
+
+    useEffect(() => {
+        initFacebookSDK();
+    
+        // Parse lại Facebook XFBML sau mỗi lần render
+        if (window.FB) {
+            window.FB.XFBML.parse();
+        }
+    }, []);
+
     const {data, isSuccess, isWarning} = mutation
     /*eslint-disable*/
     useEffect(() => {
@@ -120,7 +134,7 @@ const SignInPage = () => {
                             </div>
                         </div>
                         <Flex justify='space-between' align='center'>
-                            <ButtonComponent name="FaceBook" color='#fff' textColor='#000' icon={<FacebookFilled />}></ButtonComponent>
+                            <FBLoginComponent></FBLoginComponent>
                             <ButtonComponent name="Google" color='#fff' textColor='#000' icon = {<GoogleCircleFilled />}></ButtonComponent>
                         </Flex>
                         <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '40px 0'}}>
