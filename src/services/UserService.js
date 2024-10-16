@@ -8,7 +8,7 @@ export const loginUser = async (data) => {
 }
 
 export const loginFacebook = async (accessToken) => {
-    const res = await axios.post(`${process.env.REACT_APP_API_URL}/user/sign-in`, accessToken)
+    const res = await axios.post(`${process.env.REACT_APP_API_URL}/user/auth/facebook`, { accessToken })
     return res.data
 }
 
