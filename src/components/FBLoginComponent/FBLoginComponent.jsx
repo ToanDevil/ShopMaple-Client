@@ -5,6 +5,7 @@ import ButtonComponent from '../ButtonComponent/ButtonComponent';
 
 const FBLoginComponent = () => {
     const responseFacebook = (response) => {
+        console.log("Facebook response:", response); // Ghi lại phản hồi
         if (response.status !== "unknown") {
             const { accessToken } = response;
             console.log("Facebook Access Token:", accessToken);
